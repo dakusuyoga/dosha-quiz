@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Āyurvedic Doṣa Questionnaire</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brown-deep: #2a1a0e;
+    --brown-mid: #5c3d28;
+    --brown-warm: #8b5e3c;
+    --sand: #c9a87c;
+    --sand-light: #e8d5b7;
+    --cream: #f5efe4;
+    --cream-light: #faf6ef;
+    --green-deep: #1e3a1a;
+    --green-mid: #3a6b2e;
+    --terracotta: #b05a3a;
+    --text-dark: #2a1a0e;
+    --text-mid: #5c3d28;
+    --text-light: #8b7355;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--cream-light);
+    color: var(--text-dark);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* Subtle grain texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 28px 80px;
+  }
+
+  /* ── Header ── */
+  .quiz-header {
+    text-align: center;
+    margin-bottom: 52px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--sand-light);
+  }
+
+  .sanskrit-ornament {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--brown-warm);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    display: block;
+  }
+
+  .quiz-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--brown-deep);
+    line-height: 1.15;
+    letter-spacing: 0.02em;
+    margin-bottom: 22px;
+  }
+
+  .quiz-title em {
+    font-style: italic;
+    color: var(--brown-warm);
+  }
+
+  .divider-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 22px 0;
+  }
+
+  .divider-ornament::before,
+  .divider-ornament::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 1px;
+    background: var(--sand);
+  }
+
+  .divider-ornament span {
+    color: var(--sand);
+    font-size: 1rem;
+  }
+
+  .quiz-intro {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    line-height: 1.85;
+    max-width: 620px;
+    margin: 0 auto 24px;
+    text-align: left;
+  }
+
+  /* ── Scale Legend ── */
+  .scale-legend {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  .scale-item {
+    background: var(--cream);
+    border: 1px solid var(--sand-light);
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    color: var(--text-mid);
+    white-space: nowrap;
+  }
+
+  .scale-item strong {
+    color: var(--brown-warm);
+    font-weight: 500;
+  }
+
+  /* ── Dual Scoring Toggle ── */
+  .scoring-toggle {
+    display: flex;
+    background: var(--cream);
+    border: 1px solid var(--sand-light);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 32px auto 0;
+    max-width: 420px;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    transition: all 0.25s ease;
+  }
+
+  .toggle-btn.active {
+    background: var(--brown-warm);
+    color: var(--cream-light);
+  }
+
+  .toggle-label {
+    display: block;
+    font-size: 0.68rem;
+    opacity: 0.75;
+    margin-top: 2px;
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  /* ── Section ── */
+  .dosha-section {
+    margin-bottom: 56px;
+    opacity: 0;
+    transform: translateY(24px);
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  .dosha-section:nth-child(1) { animation-delay: 0.1s; }
+  .dosha-section:nth-child(2) { animation-delay: 0.2s; }
+  .dosha-section:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--sand-light);
+  }
+
+  .dosha-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+  }
+
+  .vata .dosha-name { color: var(--brown-mid); }
+  .pitta .dosha-name { color: var(--terracotta); }
+  .kapha .dosha-name { color: var(--green-mid); }
+
+  .dosha-elements {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--text-light);
+    letter-spacing: 0.04em;
+  }
+
+  .subsection-title {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin: 26px 0 14px;
+    font-weight: 400;
+  }
+
+  /* ── Question Row ── */
+  .question-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(201, 168, 124, 0.2);
+    transition: background 0.15s;
+  }
+
+  .question-row:last-child { border-bottom: none; }
+
+  .question-num {
+    font-size: 0.7rem;
+    color: var(--sand);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  .question-text-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    grid-column: 1;
+  }
+
+  .question-text {
+    font-size: 0.88rem;
+    color: var(--text-dark);
+    line-height: 1.55;
+  }
+
+  /* ── Rating Buttons ── */
+  .rating-group {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+    align-items: center;
+  }
+
+  .rating-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--sand-light);
+    background: var(--cream);
+    cursor: pointer;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--text-light);
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .rating-btn:hover {
+    border-color: var(--sand);
+    color: var(--brown-mid);
+    transform: scale(1.08);
+  }
+
+  .vata .rating-btn.selected {
+    background: var(--brown-mid);
+    border-color: var(--brown-mid);
+    color: var(--cream-light);
+  }
+
+  .pitta .rating-btn.selected {
+    background: var(--terracotta);
+    border-color: var(--terracotta);
+    color: var(--cream-light);
+  }
+
+  .kapha .rating-btn.selected {
+    background: var(--green-mid);
+    border-color: var(--green-mid);
+    color: var(--cream-light);
+  }
+
+  /* ── Score Tracker ── */
+  .score-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 24px;
+    padding: 14px 20px;
+    background: var(--cream);
+    border: 1px solid var(--sand-light);
+    border-radius: 6px;
+    justify-content: space-between;
+  }
+
+  .score-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    font-weight: 400;
+  }
+
+  .score-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+
+  .vata .score-value { color: var(--brown-mid); }
+  .pitta .score-value { color: var(--terracotta); }
+  .kapha .score-value { color: var(--green-mid); }
+
+  .score-max {
+    font-size: 0.8rem;
+    color: var(--sand);
+  }
+
+  /* ── Progress bar ── */
+  .score-bar-wrap {
+    flex: 1;
+    height: 4px;
+    background: var(--sand-light);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 0 10px;
+  }
+
+  .score-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.35s ease;
+    width: 0%;
+  }
+
+  .vata .score-bar { background: var(--brown-mid); }
+  .pitta .score-bar { background: var(--terracotta); }
+  .kapha .score-bar { background: var(--green-mid); }
+
+  /* ── Submit ── */
+  .submit-section {
+    text-align: center;
+    margin-top: 48px;
+    padding-top: 40px;
+    border-top: 1px solid var(--sand-light);
+  }
+
+  .submit-note {
+    font-size: 0.82rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin-bottom: 24px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+  }
+
+  .btn-submit {
+    display: inline-block;
+    padding: 16px 48px;
+    background: var(--brown-deep);
+    color: var(--cream-light);
+    border: none;
+    cursor: pointer;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: all 0.25s ease;
+    border-radius: 2px;
+  }
+
+  .btn-submit:hover {
+    background: var(--brown-warm);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(42, 26, 14, 0.2);
+  }
+
+  .btn-reset {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 10px 28px;
+    background: transparent;
+    color: var(--text-light);
+    border: 1px solid var(--sand-light);
+    cursor: pointer;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    border-radius: 2px;
+    margin-left: 12px;
+  }
+
+  .btn-reset:hover {
+    border-color: var(--sand);
+    color: var(--text-mid);
+  }
+
+  /* ── Results Panel ── */
+  .results-panel {
+    display: none;
+    margin-top: 48px;
+    padding: 40px;
+    background: var(--cream);
+    border: 1px solid var(--sand-light);
+    border-radius: 6px;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  .results-panel.visible { display: block; }
+
+  .results-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--brown-deep);
+    margin-bottom: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  .results-subtitle {
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 28px;
+  }
+
+  .results-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+
+  .result-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 60px;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .result-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+  }
+
+  .result-bar-wrap {
+    height: 8px;
+    background: var(--sand-light);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .result-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .result-bar-vata { background: var(--brown-mid); }
+  .result-bar-pitta { background: var(--terracotta); }
+  .result-bar-kapha { background: var(--green-mid); }
+
+  .result-score {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--text-mid);
+    text-align: right;
+  }
+
+  .result-constitution {
+    padding: 20px 24px;
+    border-left: 3px solid var(--sand);
+    background: var(--cream-light);
+    border-radius: 0 4px 4px 0;
+    margin-top: 10px;
+  }
+
+  .constitution-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 6px;
+  }
+
+  .constitution-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--brown-deep);
+    margin-bottom: 8px;
+  }
+
+  .constitution-note {
+    font-size: 0.83rem;
+    color: var(--text-light);
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.95rem;
+  }
+
+  .results-cta {
+    margin-top: 28px;
+    text-align: center;
+  }
+
+  .results-cta p {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-bottom: 16px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  .btn-cta {
+    display: inline-block;
+    padding: 14px 40px;
+    background: var(--brown-deep);
+    color: var(--cream-light);
+    text-decoration: none;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.76rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border-radius: 2px;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-cta:hover {
+    background: var(--brown-warm);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(42, 26, 14, 0.18);
+  }
+
+  .disclaimer {
+    margin-top: 28px;
+    font-size: 0.78rem;
+    color: var(--text-light);
+    font-style: italic;
+    border-top: 1px solid var(--sand-light);
+    padding-top: 20px;
+    line-height: 1.7;
+  }
+
+  /* ── Progress indicator ── */
+  .quiz-progress {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(250, 246, 239, 0.92);
+    backdrop-filter: blur(8px);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--sand-light);
+    margin: 0 -28px 36px;
+    padding: 12px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .progress-text {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    white-space: nowrap;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 3px;
+    background: var(--sand-light);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--brown-mid), var(--terracotta), var(--green-mid));
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  .progress-count {
+    font-size: 0.72rem;
+    color: var(--sand);
+    white-space: nowrap;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 560px) {
+    .container { padding: 40px 18px 60px; }
+    .quiz-title { font-size: 1.9rem; }
+    .rating-btn { width: 32px; height: 32px; font-size: 0.75rem; }
+    .rating-group { gap: 3px; }
+    .question-row { grid-template-columns: 1fr; gap: 10px; }
+    .rating-group { justify-content: flex-start; }
+    .results-panel { padding: 24px 18px; }
+    .result-row { grid-template-columns: 64px 1fr 48px; }
+    .scale-legend { flex-direction: column; align-items: center; }
+    .quiz-progress { margin: 0 -18px 28px; padding: 10px 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="quiz-header">
+    <span class="sanskrit-ornament">Āyurveda</span>
+    <h1 class="quiz-title">Discover Your<br><em>Doṣa Constitution</em></h1>
+    <div class="divider-ornament"><span>✦</span></div>
+    <p class="quiz-intro">
+      For each statement, select the number that most closely reflects how much it applies to you. Add up your scores to reveal your dominant doṣa. We recommend answering twice — first reflecting on your general tendencies throughout life (<em>prakṛti</em>), then according to how you feel today (<em>vikṛti</em>).
+    </p>
+    <div class="scale-legend">
+      <div class="scale-item"><strong>0–1</strong> &nbsp;Doesn't apply</div>
+      <div class="scale-item"><strong>2–3</strong> &nbsp;Sometimes applies</div>
+      <div class="scale-item"><strong>4–5</strong> &nbsp;Applies most of the time</div>
+    </div>
+    <div class="scoring-toggle">
+      <button class="toggle-btn active" onclick="setMode('prakriti', this)">
+        Prakṛti
+        <span class="toggle-label">Birth constitution</span>
+      </button>
+      <button class="toggle-btn" onclick="setMode('vikriti', this)">
+        Vikṛti
+        <span class="toggle-label">Current state</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="quiz-progress">
+    <span class="progress-text">Progress</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-count" id="progressCount">0 / 60</span>
+  </div>
+
+  <!-- ═══════════════ VATA ═══════════════ -->
+  <div class="dosha-section vata" id="section-vata">
+    <div class="section-header">
+      <h2 class="dosha-name">Vāta</h2>
+      <span class="dosha-elements">Air &amp; Space</span>
+    </div>
+
+    <p class="subsection-title">Physical Characteristics</p>
+    <div id="vata-physical"></div>
+
+    <p class="subsection-title">Psychological Characteristics</p>
+    <div id="vata-psych"></div>
+
+    <div class="score-display">
+      <span class="score-label">Vāta Score</span>
+      <div class="score-bar-wrap"><div class="score-bar" id="vata-bar"></div></div>
+      <span class="score-value" id="vata-score">0</span>
+      <span class="score-max">/ 100</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PITTA ═══════════════ -->
+  <div class="dosha-section pitta" id="section-pitta">
+    <div class="section-header">
+      <h2 class="dosha-name">Pitta</h2>
+      <span class="dosha-elements">Fire &amp; Water</span>
+    </div>
+
+    <p class="subsection-title">Physical Characteristics</p>
+    <div id="pitta-physical"></div>
+
+    <p class="subsection-title">Psychological Characteristics</p>
+    <div id="pitta-psych"></div>
+
+    <div class="score-display">
+      <span class="score-label">Pitta Score</span>
+      <div class="score-bar-wrap"><div class="score-bar" id="pitta-bar"></div></div>
+      <span class="score-value" id="pitta-score">0</span>
+      <span class="score-max">/ 100</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════ KAPHA ═══════════════ -->
+  <div class="dosha-section kapha" id="section-kapha">
+    <div class="section-header">
+      <h2 class="dosha-name">Kapha</h2>
+      <span class="dosha-elements">Earth &amp; Water</span>
+    </div>
+
+    <p class="subsection-title">Physical Characteristics</p>
+    <div id="kapha-physical"></div>
+
+    <p class="subsection-title">Psychological Characteristics</p>
+    <div id="kapha-psych"></div>
+
+    <div class="score-display">
+      <span class="score-label">Kapha Score</span>
+      <div class="score-bar-wrap"><div class="score-bar" id="kapha-bar"></div></div>
+      <span class="score-value" id="kapha-score">0</span>
+      <span class="score-max">/ 100</span>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-section">
+    <p class="submit-note">When you have answered all 60 questions, reveal your constitution below.</p>
+    <button class="btn-submit" onclick="calculateResults()">Reveal My Doṣa</button>
+    <button class="btn-reset" onclick="resetQuiz()">Reset</button>
+  </div>
+
+  <!-- Results -->
+  <div class="results-panel" id="resultsPanel">
+    <div class="results-title">Your Āyurvedic Constitution</div>
+    <div class="results-subtitle" id="modeLabel">Prakṛti — Birth Constitution</div>
+
+    <div class="results-bars">
+      <div class="result-row">
+        <span class="result-label" style="color:var(--brown-mid)">Vāta</span>
+        <div class="result-bar-wrap"><div class="result-bar-fill result-bar-vata" id="res-vata-bar" style="width:0%"></div></div>
+        <span class="result-score" id="res-vata-score">0</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label" style="color:var(--terracotta)">Pitta</span>
+        <div class="result-bar-wrap"><div class="result-bar-fill result-bar-pitta" id="res-pitta-bar" style="width:0%"></div></div>
+        <span class="result-score" id="res-pitta-score">0</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label" style="color:var(--green-mid)">Kapha</span>
+        <div class="result-bar-wrap"><div class="result-bar-fill result-bar-kapha" id="res-kapha-bar" style="width:0%"></div></div>
+        <span class="result-score" id="res-kapha-score">0</span>
+      </div>
+    </div>
+
+    <div class="result-constitution">
+      <p class="constitution-label">Your Primary Constitution</p>
+      <p class="constitution-name" id="constitutionName">—</p>
+      <p class="constitution-note" id="constitutionNote">—</p>
+    </div>
+
+    <div class="results-cta">
+      <p>A full constitutional assessment goes deeper than any questionnaire can reveal. Speak with Dax to explore what your doṣa means for your healing.</p>
+      <a href="https://nestymt.janeapp.com/#/staff_member/106/treatment/121" class="btn-cta">Book a Discovery Call</a>
+    </div>
+
+    <p class="disclaimer">
+      Note: A simple questionnaire cannot fully capture the dynamism of the doṣa-s. Most individuals have one primary doṣa followed by a prominent secondary doṣa. Single doṣa dominance is rare, and tri-doṣa balance is very rare. We recommend consulting a qualified Āyurvedic practitioner for a comprehensive assessment.
+    </p>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+const questions = {
+  vata: {
+    physical: [
+      "I am slender and don't gain weight easily.",
+      "I am taller or shorter than average.",
+      "\"Thin\" describes many of my bodily features (such as my hair, neck, fingers, and lips).",
+      "My energy fluctuates and often comes in bursts.",
+      "My appetite is variable (e.g., high one day and low the next).",
+      "I have a tendency to become bloated, gassy, or constipated.",
+      "My skin frequently becomes dry.",
+      "I tend to have cold hands and feet.",
+      "I am a light sleeper and often have difficulty falling asleep.",
+      "I prefer warm, moist weather to cold or dry weather."
+    ],
+    psych: [
+      "I am creative and imaginative.",
+      "I enjoy artistic forms of expression.",
+      "My mind is active and often restless.",
+      "I learn quickly but also forget quickly.",
+      "I become \"spaced out\" quite easily.",
+      "I have a tendency to feel anxious, insecure, and nervous.",
+      "I speak quietly and use hand gestures.",
+      "I am always on the go.",
+      "My lifestyle and daily routine are irregular.",
+      "My dreams are active and colourful."
+    ]
+  },
+  pitta: {
+    physical: [
+      "I have a medium build and gain or lose weight easily.",
+      "My height is average.",
+      "My physical features are sharp or pointed (such as nose, chin, and teeth).",
+      "My energy and activity levels are high.",
+      "My appetite is strong; I can eat large quantities of food.",
+      "My bowel movements are regular; I occasionally have diarrhea.",
+      "I perspire quite easily.",
+      "My skin is oily and has a reddish tone.",
+      "My eyes are penetrating and light in colour.",
+      "I prefer cooler weather and become irritable in hot weather."
+    ],
+    psych: [
+      "I am goal-oriented and can achieve anything to which I put my mind.",
+      "I have a good sense of humour.",
+      "I have a strong intellect and enjoy learning new things.",
+      "I have a natural ability to lead others.",
+      "I am a perfectionist.",
+      "I tend to become irritable, impatient, and angry.",
+      "I am critical of myself and others.",
+      "Many people think I'm stubborn.",
+      "I become irritable if I skip a meal.",
+      "I enjoy competition."
+    ]
+  },
+  kapha: {
+    physical: [
+      "I gain weight easily and lose weight with great difficulty.",
+      "I am short and stocky, or tall and sturdy.",
+      "\"Thick\" describes many of my bodily features (such as my hair, neck, fingers, and lips).",
+      "I have abundant strength and stamina.",
+      "My digestion is slow and I often feel heavy after eating.",
+      "My bowel movements are highly regular.",
+      "My skin is smooth and oily and tends to be pale.",
+      "I sleep deeply and soundly.",
+      "I catch colds quite frequently.",
+      "I prefer hot weather over cold or damp weather."
+    ],
+    psych: [
+      "I have a big heart and prefer to focus on the good in the world.",
+      "I am calm in nature and not easily angered.",
+      "I prefer a slow, relaxed lifestyle.",
+      "I don't learn as quickly as others, but my long-term memory is excellent.",
+      "I become sentimental quite easily; I often think about the past.",
+      "I am methodical in my actions.",
+      "I am highly protective of myself and my family.",
+      "I let negative emotions build up rather than addressing them.",
+      "I usually let others take the lead.",
+      "I am a natural listener and frequently help others with their problems."
+    ]
+  }
+};
+
+// scores[dosha][section][qIndex] = value
+let scores = { vata: {}, pitta: {}, kapha: {} };
+let currentMode = 'prakriti';
+let answeredCount = 0;
+const TOTAL_QUESTIONS = 60;
+
+function setMode(mode, btn) {
+  currentMode = mode;
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('modeLabel').textContent =
+    mode === 'prakriti' ? 'Prakṛti — Birth Constitution' : 'Vikṛti — Current State';
+}
+
+function buildQuestions() {
+  ['vata','pitta','kapha'].forEach(dosha => {
+    ['physical','psych'].forEach(section => {
+      const containerId = `${dosha}-${section}`;
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      questions[dosha][section].forEach((q, i) => {
+        const key = `${dosha}_${section}_${i}`;
+        const row = document.createElement('div');
+        row.className = 'question-row';
+        row.innerHTML = `
+          <div class="question-text-wrap">
+            <span class="question-num">${String(i+1).padStart(2,'0')}</span>
+            <span class="question-text">${q}</span>
+          </div>
+          <div class="rating-group" id="rg_${key}">
+            ${[0,1,2,3,4,5].map(v =>
+              `<button class="rating-btn" data-dosha="${dosha}" data-section="${section}" data-idx="${i}" data-val="${v}" onclick="selectRating(this)">${v}</button>`
+            ).join('')}
+          </div>`;
+        container.appendChild(row);
+      });
+    });
+  });
+}
+
+function selectRating(btn) {
+  const { dosha, section, idx, val } = btn.dataset;
+  const key = `${dosha}_${section}_${idx}`;
+  const group = document.getElementById(`rg_${key}`);
+  const isNew = !(scores[dosha][key] !== undefined);
+  const wasAnswered = scores[dosha][key] !== undefined;
+  scores[dosha][key] = parseInt(val);
+  group.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  if (!wasAnswered) { answeredCount++; updateProgress(); }
+  updateScores();
+}
+
+function updateProgress() {
+  const pct = (answeredCount / TOTAL_QUESTIONS) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressCount').textContent = `${answeredCount} / ${TOTAL_QUESTIONS}`;
+}
+
+function getTotal(dosha) {
+  return Object.values(scores[dosha]).reduce((a, b) => a + b, 0);
+}
+
+function updateScores() {
+  ['vata','pitta','kapha'].forEach(d => {
+    const total = getTotal(d);
+    document.getElementById(`${d}-score`).textContent = total;
+    document.getElementById(`${d}-bar`).style.width = (total / 100 * 100) + '%';
+  });
+}
+
+function calculateResults() {
+  const v = getTotal('vata');
+  const p = getTotal('pitta');
+  const k = getTotal('kapha');
+  const max = Math.max(v, p, k);
+
+  document.getElementById('res-vata-score').textContent = v;
+  document.getElementById('res-pitta-score').textContent = p;
+  document.getElementById('res-kapha-score').textContent = k;
+
+  // animate bars
+  setTimeout(() => {
+    document.getElementById('res-vata-bar').style.width = (v / 100 * 100) + '%';
+    document.getElementById('res-pitta-bar').style.width = (p / 100 * 100) + '%';
+    document.getElementById('res-kapha-bar').style.width = (k / 100 * 100) + '%';
+  }, 80);
+
+  const constitution = determineConstitution(v, p, k);
+  document.getElementById('constitutionName').textContent = constitution.name;
+  document.getElementById('constitutionNote').textContent = constitution.note;
+
+  const panel = document.getElementById('resultsPanel');
+  panel.classList.add('visible');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function determineConstitution(v, p, k) {
+  const total = v + p + k;
+  if (total === 0) return { name: '—', note: 'Please complete the questionnaire.' };
+
+  const vPct = v / total;
+  const pPct = p / total;
+  const kPct = k / total;
+
+  // Tridosha: all within ~10% of each other
+  const spread = Math.max(vPct, pPct, kPct) - Math.min(vPct, pPct, kPct);
+  if (spread < 0.12) {
+    return { name: 'Tri-Doṣa', note: 'You show a balanced expression of all three doṣa-s — a rare and distinctive constitution.' };
+  }
+
+  // Sort doshas by score
+  const ranked = [
+    { name: 'Vāta', score: v, pct: vPct },
+    { name: 'Pitta', score: p, pct: pPct },
+    { name: 'Kapha', score: k, pct: kPct }
+  ].sort((a, b) => b.score - a.score);
+
+  const [first, second] = ranked;
+  const diff = first.pct - second.pct;
+
+  // Single dominant (>20% gap from second)
+  if (diff > 0.20) {
+    return {
+      name: first.name,
+      note: `Your constitution shows a clear ${first.name} dominance. Single doṣa dominance is relatively uncommon.`
+    };
+  }
+
+  // Dual dosha
+  const primary = first.name;
+  const secondary = second.name;
+  return {
+    name: `${primary}–${secondary}`,
+    note: `You have a dual-doṣa constitution with ${primary} as the primary influence and ${secondary} as a prominent secondary quality. This is the most common constitutional type.`
+  };
+}
+
+function resetQuiz() {
+  scores = { vata: {}, pitta: {}, kapha: {} };
+  answeredCount = 0;
+  updateProgress();
+  updateScores();
+  document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('resultsPanel').classList.remove('visible');
+  ['res-vata-bar','res-pitta-bar','res-kapha-bar'].forEach(id => {
+    document.getElementById(id).style.width = '0%';
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+buildQuestions();
+</script>
+</body>
+</html>
