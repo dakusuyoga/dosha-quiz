@@ -1,1039 +1,608 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Āyurvedic Doṣa Questionnaire</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --brown-deep: #2a1a0e;
-    --brown-mid: #5c3d28;
-    --brown-warm: #8b5e3c;
-    --sand: #c9a87c;
-    --sand-light: #e8d5b7;
-    --cream: #f5efe4;
-    --cream-light: #faf6ef;
-    --green-deep: #1e3a1a;
-    --green-mid: #3a6b2e;
-    --terracotta: #b05a3a;
-    --text-dark: #2a1a0e;
-    --text-mid: #5c3d28;
-    --text-light: #8b7355;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background-color: var(--cream-light);
-    color: var(--text-dark);
-    font-family: 'Jost', sans-serif;
-    font-weight: 300;
-    line-height: 1.7;
-    min-height: 100vh;
-  }
-
-  /* Subtle grain texture overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.4;
-  }
-
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 780px;
-    margin: 0 auto;
-    padding: 60px 28px 80px;
-  }
-
-  /* ── Header ── */
-  .quiz-header {
-    text-align: center;
-    margin-bottom: 52px;
-    padding-bottom: 40px;
-    border-bottom: 1px solid var(--sand-light);
-  }
-
-  .sanskrit-ornament {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 1rem;
-    color: var(--brown-warm);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    margin-bottom: 18px;
-    display: block;
-  }
-
-  .quiz-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 300;
-    font-size: clamp(2rem, 5vw, 3rem);
-    color: var(--brown-deep);
-    line-height: 1.15;
-    letter-spacing: 0.02em;
-    margin-bottom: 22px;
-  }
-
-  .quiz-title em {
-    font-style: italic;
-    color: var(--brown-warm);
-  }
-
-  .divider-ornament {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    margin: 22px 0;
-  }
-
-  .divider-ornament::before,
-  .divider-ornament::after {
-    content: '';
-    display: block;
-    width: 60px;
-    height: 1px;
-    background: var(--sand);
-  }
-
-  .divider-ornament span {
-    color: var(--sand);
-    font-size: 1rem;
-  }
-
-  .quiz-intro {
-    font-size: 0.9rem;
-    color: var(--text-light);
-    line-height: 1.85;
-    max-width: 620px;
-    margin: 0 auto 24px;
-    text-align: left;
-  }
-
-  /* ── Scale Legend ── */
-  .scale-legend {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-top: 20px;
-  }
-
-  .scale-item {
-    background: var(--cream);
-    border: 1px solid var(--sand-light);
-    border-radius: 4px;
-    padding: 6px 14px;
-    font-size: 0.78rem;
-    letter-spacing: 0.06em;
-    color: var(--text-mid);
-    white-space: nowrap;
-  }
-
-  .scale-item strong {
-    color: var(--brown-warm);
-    font-weight: 500;
-  }
-
-  /* ── Dual Scoring Toggle ── */
-  .scoring-toggle {
-    display: flex;
-    background: var(--cream);
-    border: 1px solid var(--sand-light);
-    border-radius: 8px;
-    overflow: hidden;
-    margin: 32px auto 0;
-    max-width: 420px;
-  }
-
-  .toggle-btn {
-    flex: 1;
-    padding: 12px 16px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-family: 'Jost', sans-serif;
-    font-size: 0.8rem;
-    font-weight: 400;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-light);
-    transition: all 0.25s ease;
-  }
-
-  .toggle-btn.active {
-    background: var(--brown-warm);
-    color: var(--cream-light);
-  }
-
-  .toggle-label {
-    display: block;
-    font-size: 0.68rem;
-    opacity: 0.75;
-    margin-top: 2px;
-    font-style: italic;
-    text-transform: none;
-    letter-spacing: 0;
-  }
-
-  /* ── Section ── */
-  .dosha-section {
-    margin-bottom: 56px;
-    opacity: 0;
-    transform: translateY(24px);
-    animation: fadeUp 0.6s ease forwards;
-  }
-
-  .dosha-section:nth-child(1) { animation-delay: 0.1s; }
-  .dosha-section:nth-child(2) { animation-delay: 0.2s; }
-  .dosha-section:nth-child(3) { animation-delay: 0.3s; }
-
-  @keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .section-header {
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    margin-bottom: 24px;
-    padding-bottom: 14px;
-    border-bottom: 2px solid var(--sand-light);
-  }
-
-  .dosha-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 2rem;
-    font-weight: 400;
-    letter-spacing: 0.06em;
-  }
-
-  .vata .dosha-name { color: var(--brown-mid); }
-  .pitta .dosha-name { color: var(--terracotta); }
-  .kapha .dosha-name { color: var(--green-mid); }
-
-  .dosha-elements {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 0.95rem;
-    color: var(--text-light);
-    letter-spacing: 0.04em;
-  }
-
-  .subsection-title {
-    font-size: 0.72rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-light);
-    margin: 26px 0 14px;
-    font-weight: 400;
-  }
-
-  /* ── Question Row ── */
-  .question-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: start;
-    gap: 16px;
-    padding: 14px 0;
-    border-bottom: 1px solid rgba(201, 168, 124, 0.2);
-    transition: background 0.15s;
-  }
-
-  .question-row:last-child { border-bottom: none; }
-
-  .question-num {
-    font-size: 0.7rem;
-    color: var(--sand);
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    margin-right: 8px;
-    flex-shrink: 0;
-  }
-
-  .question-text-wrap {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    grid-column: 1;
-  }
-
-  .question-text {
-    font-size: 0.88rem;
-    color: var(--text-dark);
-    line-height: 1.55;
-  }
-
-  /* ── Rating Buttons ── */
-  .rating-group {
-    display: flex;
-    gap: 5px;
-    flex-shrink: 0;
-    align-items: center;
-  }
-
-  .rating-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 1px solid var(--sand-light);
-    background: var(--cream);
-    cursor: pointer;
-    font-family: 'Jost', sans-serif;
-    font-size: 0.8rem;
-    font-weight: 400;
-    color: var(--text-light);
-    transition: all 0.18s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .rating-btn:hover {
-    border-color: var(--sand);
-    color: var(--brown-mid);
-    transform: scale(1.08);
-  }
-
-  .vata .rating-btn.selected {
-    background: var(--brown-mid);
-    border-color: var(--brown-mid);
-    color: var(--cream-light);
-  }
-
-  .pitta .rating-btn.selected {
-    background: var(--terracotta);
-    border-color: var(--terracotta);
-    color: var(--cream-light);
-  }
-
-  .kapha .rating-btn.selected {
-    background: var(--green-mid);
-    border-color: var(--green-mid);
-    color: var(--cream-light);
-  }
-
-  /* ── Score Tracker ── */
-  .score-display {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 24px;
-    padding: 14px 20px;
-    background: var(--cream);
-    border: 1px solid var(--sand-light);
-    border-radius: 6px;
-    justify-content: space-between;
-  }
-
-  .score-label {
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-light);
-    font-weight: 400;
-  }
-
-  .score-value {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.6rem;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-  }
-
-  .vata .score-value { color: var(--brown-mid); }
-  .pitta .score-value { color: var(--terracotta); }
-  .kapha .score-value { color: var(--green-mid); }
-
-  .score-max {
-    font-size: 0.8rem;
-    color: var(--sand);
-  }
-
-  /* ── Progress bar ── */
-  .score-bar-wrap {
-    flex: 1;
-    height: 4px;
-    background: var(--sand-light);
-    border-radius: 2px;
-    overflow: hidden;
-    margin: 0 10px;
-  }
-
-  .score-bar {
-    height: 100%;
-    border-radius: 2px;
-    transition: width 0.35s ease;
-    width: 0%;
-  }
-
-  .vata .score-bar { background: var(--brown-mid); }
-  .pitta .score-bar { background: var(--terracotta); }
-  .kapha .score-bar { background: var(--green-mid); }
-
-  /* ── Submit ── */
-  .submit-section {
-    text-align: center;
-    margin-top: 48px;
-    padding-top: 40px;
-    border-top: 1px solid var(--sand-light);
-  }
-
-  .submit-note {
-    font-size: 0.82rem;
-    color: var(--text-light);
-    font-style: italic;
-    margin-bottom: 24px;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1rem;
-  }
-
-  .btn-submit {
-    display: inline-block;
-    padding: 16px 48px;
-    background: var(--brown-deep);
-    color: var(--cream-light);
-    border: none;
-    cursor: pointer;
-    font-family: 'Jost', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    transition: all 0.25s ease;
-    border-radius: 2px;
-  }
-
-  .btn-submit:hover {
-    background: var(--brown-warm);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 24px rgba(42, 26, 14, 0.2);
-  }
-
-  .btn-reset {
-    display: inline-block;
-    margin-top: 14px;
-    padding: 10px 28px;
-    background: transparent;
-    color: var(--text-light);
-    border: 1px solid var(--sand-light);
-    cursor: pointer;
-    font-family: 'Jost', sans-serif;
-    font-size: 0.72rem;
-    font-weight: 400;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    transition: all 0.2s ease;
-    border-radius: 2px;
-    margin-left: 12px;
-  }
-
-  .btn-reset:hover {
-    border-color: var(--sand);
-    color: var(--text-mid);
-  }
-
-  /* ── Results Panel ── */
-  .results-panel {
-    display: none;
-    margin-top: 48px;
-    padding: 40px;
-    background: var(--cream);
-    border: 1px solid var(--sand-light);
-    border-radius: 6px;
-    animation: fadeUp 0.5s ease forwards;
-  }
-
-  .results-panel.visible { display: block; }
-
-  .results-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.5rem;
-    font-weight: 300;
-    color: var(--brown-deep);
-    margin-bottom: 6px;
-    letter-spacing: 0.04em;
-  }
-
-  .results-subtitle {
-    font-size: 0.78rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-light);
-    margin-bottom: 28px;
-  }
-
-  .results-bars {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    margin-bottom: 28px;
-  }
-
-  .result-row {
-    display: grid;
-    grid-template-columns: 80px 1fr 60px;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .result-label {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.05rem;
-    letter-spacing: 0.06em;
-  }
-
-  .result-bar-wrap {
-    height: 8px;
-    background: var(--sand-light);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .result-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .result-bar-vata { background: var(--brown-mid); }
-  .result-bar-pitta { background: var(--terracotta); }
-  .result-bar-kapha { background: var(--green-mid); }
-
-  .result-score {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.1rem;
-    color: var(--text-mid);
-    text-align: right;
-  }
-
-  .result-constitution {
-    padding: 20px 24px;
-    border-left: 3px solid var(--sand);
-    background: var(--cream-light);
-    border-radius: 0 4px 4px 0;
-    margin-top: 10px;
-  }
-
-  .constitution-label {
-    font-size: 0.7rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--text-light);
-    margin-bottom: 6px;
-  }
-
-  .constitution-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.5rem;
-    font-weight: 400;
-    color: var(--brown-deep);
-    margin-bottom: 8px;
-  }
-
-  .constitution-note {
-    font-size: 0.83rem;
-    color: var(--text-light);
-    font-style: italic;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 0.95rem;
-  }
-
-  .results-cta {
-    margin-top: 28px;
-    text-align: center;
-  }
-
-  .results-cta p {
-    font-size: 0.85rem;
-    color: var(--text-light);
-    margin-bottom: 16px;
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 1rem;
-  }
-
-  .btn-cta {
-    display: inline-block;
-    padding: 14px 40px;
-    background: var(--brown-deep);
-    color: var(--cream-light);
-    text-decoration: none;
-    font-family: 'Jost', sans-serif;
-    font-size: 0.76rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    border-radius: 2px;
-    transition: all 0.25s ease;
-    cursor: pointer;
-    border: none;
-  }
-
-  .btn-cta:hover {
-    background: var(--brown-warm);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 24px rgba(42, 26, 14, 0.18);
-  }
-
-  .disclaimer {
-    margin-top: 28px;
-    font-size: 0.78rem;
-    color: var(--text-light);
-    font-style: italic;
-    border-top: 1px solid var(--sand-light);
-    padding-top: 20px;
-    line-height: 1.7;
-  }
-
-  /* ── Progress indicator ── */
-  .quiz-progress {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: rgba(250, 246, 239, 0.92);
-    backdrop-filter: blur(8px);
-    padding: 10px 0;
-    border-bottom: 1px solid var(--sand-light);
-    margin: 0 -28px 36px;
-    padding: 12px 28px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .progress-text {
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-light);
-    white-space: nowrap;
-  }
-
-  .progress-track {
-    flex: 1;
-    height: 3px;
-    background: var(--sand-light);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--brown-mid), var(--terracotta), var(--green-mid));
-    border-radius: 2px;
-    transition: width 0.3s ease;
-    width: 0%;
-  }
-
-  .progress-count {
-    font-size: 0.72rem;
-    color: var(--sand);
-    white-space: nowrap;
-  }
-
-  /* ── Mobile ── */
-  @media (max-width: 560px) {
-    .container { padding: 40px 18px 60px; }
-    .quiz-title { font-size: 1.9rem; }
-    .rating-btn { width: 32px; height: 32px; font-size: 0.75rem; }
-    .rating-group { gap: 3px; }
-    .question-row { grid-template-columns: 1fr; gap: 10px; }
-    .rating-group { justify-content: flex-start; }
-    .results-panel { padding: 24px 18px; }
-    .result-row { grid-template-columns: 64px 1fr 48px; }
-    .scale-legend { flex-direction: column; align-items: center; }
-    .quiz-progress { margin: 0 -18px 28px; padding: 10px 18px; }
-  }
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
 </head>
 <body>
-<div class="container">
+<x-dc>
+<helmet>
+<title>Doṣa Quiz | Discover Your Āyurvedic Constitution</title>
+<meta name="description" content="A short quiz exploring your Āyurvedic constitution — Vāta, Pitta, or Kapha — and what it suggests about your body's daily rhythms and needs.">
+<meta property="og:site_name" content="Dax Yoga Therapy">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_CA">
+<meta property="og:title" content="Doṣa Quiz | Discover Your Āyurvedic Constitution">
+<meta property="og:description" content="A short quiz exploring your Āyurvedic constitution — Vāta, Pitta, or Kapha — and what it suggests about your body's daily rhythms and needs.">
+<meta property="og:image" content="assets/dax-vorona-yoga-therapy-toronto.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&amp;family=Raleway:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&amp;family=Noto+Serif:ital,wght@0,400;0,500;1,400&amp;family=Noto+Sans:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: #F7F3EC; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  a { color: #33523E; }
+  a:hover { color: #1CCBD6; }
+  ::selection { background: #33523E; color: #F7F3EC; }
+  details.full-desc > summary { list-style: none; }
+  details.full-desc > summary::-webkit-details-marker { display: none; }
+  details.full-desc > summary::after { content: '＋'; margin-left: auto; font-weight: 400; color: #C0674B; }
+  details.full-desc[open] > summary::after { content: '－'; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</helmet>
+<div style="background:#F7F3EC; min-height:100vh">
+  <dc-import name="SiteNav" hint-size="100%,64px" style="position:sticky; top:0; z-index:60"></dc-import>
 
-  <!-- Header -->
-  <div class="quiz-header">
-    <span class="sanskrit-ornament">Āyurveda</span>
-    <h1 class="quiz-title">Discover Your<br><em>Doṣa Constitution</em></h1>
-    <div class="divider-ornament"><span>✦</span></div>
-    <p class="quiz-intro">
-      For each statement, select the number that most closely reflects how much it applies to you. Add up your scores to reveal your dominant doṣa. We recommend answering twice — first reflecting on your general tendencies throughout life (<em>prakṛti</em>), then according to how you feel today (<em>vikṛti</em>).
-    </p>
-    <div class="scale-legend">
-      <div class="scale-item"><strong>0–1</strong> &nbsp;Doesn't apply</div>
-      <div class="scale-item"><strong>2–3</strong> &nbsp;Sometimes applies</div>
-      <div class="scale-item"><strong>4–5</strong> &nbsp;Applies most of the time</div>
-    </div>
-    <div class="scoring-toggle">
-      <button class="toggle-btn active" onclick="setMode('prakriti', this)">
-        Prakṛti
-        <span class="toggle-label">Birth constitution</span>
-      </button>
-      <button class="toggle-btn" onclick="setMode('vikriti', this)">
-        Vikṛti
-        <span class="toggle-label">Current state</span>
-      </button>
-    </div>
-  </div>
+  <div style="max-width:800px; margin:0 auto; padding:56px 28px 90px">
 
-  <!-- Progress Bar -->
-  <div class="quiz-progress">
-    <span class="progress-text">Progress</span>
-    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-    <span class="progress-count" id="progressCount">0 / 60</span>
-  </div>
-
-  <!-- ═══════════════ VATA ═══════════════ -->
-  <div class="dosha-section vata" id="section-vata">
-    <div class="section-header">
-      <h2 class="dosha-name">Vāta</h2>
-      <span class="dosha-elements">Air &amp; Space</span>
-    </div>
-
-    <p class="subsection-title">Physical Characteristics</p>
-    <div id="vata-physical"></div>
-
-    <p class="subsection-title">Psychological Characteristics</p>
-    <div id="vata-psych"></div>
-
-    <div class="score-display">
-      <span class="score-label">Vāta Score</span>
-      <div class="score-bar-wrap"><div class="score-bar" id="vata-bar"></div></div>
-      <span class="score-value" id="vata-score">0</span>
-      <span class="score-max">/ 100</span>
-    </div>
-  </div>
-
-  <!-- ═══════════════ PITTA ═══════════════ -->
-  <div class="dosha-section pitta" id="section-pitta">
-    <div class="section-header">
-      <h2 class="dosha-name">Pitta</h2>
-      <span class="dosha-elements">Fire &amp; Water</span>
-    </div>
-
-    <p class="subsection-title">Physical Characteristics</p>
-    <div id="pitta-physical"></div>
-
-    <p class="subsection-title">Psychological Characteristics</p>
-    <div id="pitta-psych"></div>
-
-    <div class="score-display">
-      <span class="score-label">Pitta Score</span>
-      <div class="score-bar-wrap"><div class="score-bar" id="pitta-bar"></div></div>
-      <span class="score-value" id="pitta-score">0</span>
-      <span class="score-max">/ 100</span>
-    </div>
-  </div>
-
-  <!-- ═══════════════ KAPHA ═══════════════ -->
-  <div class="dosha-section kapha" id="section-kapha">
-    <div class="section-header">
-      <h2 class="dosha-name">Kapha</h2>
-      <span class="dosha-elements">Earth &amp; Water</span>
-    </div>
-
-    <p class="subsection-title">Physical Characteristics</p>
-    <div id="kapha-physical"></div>
-
-    <p class="subsection-title">Psychological Characteristics</p>
-    <div id="kapha-psych"></div>
-
-    <div class="score-display">
-      <span class="score-label">Kapha Score</span>
-      <div class="score-bar-wrap"><div class="score-bar" id="kapha-bar"></div></div>
-      <span class="score-value" id="kapha-score">0</span>
-      <span class="score-max">/ 100</span>
-    </div>
-  </div>
-
-  <!-- Submit -->
-  <div class="submit-section">
-    <p class="submit-note">When you have answered all 60 questions, reveal your constitution below.</p>
-    <button class="btn-submit" onclick="calculateResults()">Reveal My Doṣa</button>
-    <button class="btn-reset" onclick="resetQuiz()">Reset</button>
-  </div>
-
-  <!-- Results -->
-  <div class="results-panel" id="resultsPanel">
-    <div class="results-title">Your Āyurvedic Constitution</div>
-    <div class="results-subtitle" id="modeLabel">Prakṛti — Birth Constitution</div>
-
-    <div class="results-bars">
-      <div class="result-row">
-        <span class="result-label" style="color:var(--brown-mid)">Vāta</span>
-        <div class="result-bar-wrap"><div class="result-bar-fill result-bar-vata" id="res-vata-bar" style="width:0%"></div></div>
-        <span class="result-score" id="res-vata-score">0</span>
+    <section data-screen-label="Doṣa Quiz — Header" style="text-align:center; margin-bottom:48px; padding-bottom:38px; border-bottom:1px solid rgba(122,92,68,0.2)">
+      <p style="margin:0 0 18px; font-family:'Raleway','Noto Sans',sans-serif; font-size:11.5px; font-weight:700; letter-spacing:0.24em; color:#7A5C44">DOṢA QUIZ</p>
+      <h1 style="margin:0 0 20px; font-family:'Cormorant Garamond','Noto Serif',serif; font-weight:500; font-size:clamp(35px, 5.4vw, 54px); line-height:1.08; letter-spacing:-0.01em; color:#33523E">Discover Your<br><em style="font-style:italic; font-weight:500; color:#C0674B">Āyurvedic Constitution</em></h1>
+      <div aria-hidden="true" style="display:flex; align-items:center; justify-content:center; gap:14px; margin:20px 0">
+        <span style="display:block; width:54px; height:1px; background:rgba(122,92,68,0.2)"></span>
+        <span style="color:#C0674B; font-size:14px">✦</span>
+        <span style="display:block; width:54px; height:1px; background:rgba(122,92,68,0.2)"></span>
       </div>
-      <div class="result-row">
-        <span class="result-label" style="color:var(--terracotta)">Pitta</span>
-        <div class="result-bar-wrap"><div class="result-bar-fill result-bar-pitta" id="res-pitta-bar" style="width:0%"></div></div>
-        <span class="result-score" id="res-pitta-score">0</span>
+      <p style="margin:0 auto 26px; max-width:620px; text-align:left; font-family:'Raleway','Noto Sans',sans-serif; font-size:15.5px; line-height:1.8; color:#59685D; text-wrap:pretty">For each statement, choose the number that best reflects how true it is for you. Answer as you have been throughout your life — your general, lifelong tendencies (your <em style="color: rgb(122, 92, 68); font-style: italic;">Prakṛti</em>) — rather than how you happen to feel today. Rate all the statements below&nbsp;to reveal your dominant Doṣa.</p>
+      <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:22px">
+        <div style="background:#FBF8F2; border:1px solid rgba(122,92,68,0.2); border-radius:999px; padding:7px 16px; font-family:'Raleway','Noto Sans',sans-serif; font-size:12px; letter-spacing:0.03em; color:#59685D; white-space:nowrap"><strong style="color:#C0674B; font-weight:700">0–1</strong> &nbsp;Doesn't apply</div>
+        <div style="background:#FBF8F2; border:1px solid rgba(122,92,68,0.2); border-radius:999px; padding:7px 16px; font-family:'Raleway','Noto Sans',sans-serif; font-size:12px; letter-spacing:0.03em; color:#59685D; white-space:nowrap"><strong style="color:#C0674B; font-weight:700">2–3</strong> &nbsp;Sometimes applies</div>
+        <div style="background:#FBF8F2; border:1px solid rgba(122,92,68,0.2); border-radius:999px; padding:7px 16px; font-family:'Raleway','Noto Sans',sans-serif; font-size:12px; letter-spacing:0.03em; color:#59685D; white-space:nowrap"><strong style="color:#C0674B; font-weight:700">4–5</strong> &nbsp;Applies most of the time</div>
       </div>
-      <div class="result-row">
-        <span class="result-label" style="color:var(--green-mid)">Kapha</span>
-        <div class="result-bar-wrap"><div class="result-bar-fill result-bar-kapha" id="res-kapha-bar" style="width:0%"></div></div>
-        <span class="result-score" id="res-kapha-score">0</span>
+    </section>
+
+    <div data-screen-label="Doṣa Quiz — Progress" style="position:sticky; top:74px; z-index:40; background:rgba(247,243,236,0.9); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid rgba(122,92,68,0.2); border-radius:999px; padding:11px 22px; margin:0 0 40px; display:flex; align-items:center; gap:16px; box-shadow:0 12px 30px -20px rgba(42,58,46,0.5)">
+      <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:11px; letter-spacing:0.14em; color:#7B766B; white-space:nowrap; font-weight:600">PROGRESS</span>
+      <div style="flex:1; height:4px; background:#E7DECB; border-radius:2px; overflow:hidden"><div style="{{ progressFillStyle }}"></div></div>
+      <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:11.5px; color:#7A5C44; white-space:nowrap; font-weight:600">{{ progressCount }}</span>
+    </div>
+
+    <section data-screen-label="Doṣa Quiz — Vāta" style="margin-bottom:52px">
+      <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:20px; padding-bottom:12px; border-bottom:2px solid rgba(122,92,68,0.2)">
+        <h2 style="margin:0; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:32px; font-weight:500; letter-spacing:0.02em; color:#5F5473">Vāta</h2>
+        <span style="font-family:'Cormorant Garamond','Noto Serif',serif; font-style:italic; font-size:16px; color:#7B766B">Air &amp; Space</span>
       </div>
-    </div>
-
-    <div class="result-constitution">
-      <p class="constitution-label">Your Primary Constitution</p>
-      <p class="constitution-name" id="constitutionName">—</p>
-      <p class="constitution-note" id="constitutionNote">—</p>
-    </div>
-
-    <div class="results-cta">
-      <p>A full constitutional assessment goes deeper than any questionnaire can reveal. Speak with Dax to explore what your doṣa means for your healing.</p>
-      <a href="https://nestymt.janeapp.com/#/staff_member/106/treatment/121" class="btn-cta" target="_blank" rel="noopener noreferrer">Book a Discovery Call</a>
-    </div>
-
-    <p class="disclaimer">
-      Note: A simple questionnaire cannot fully capture the dynamism of the doṣa-s. Most individuals have one primary doṣa followed by a prominent secondary doṣa. Single doṣa dominance is rare, and tri-doṣa balance is very rare. We recommend consulting a qualified Āyurvedic practitioner for a comprehensive assessment.
-    </p>
-  </div>
-
-</div><!-- /container -->
-
-<script>
-const questions = {
-  vata: {
-    physical: [
-      "I am slender and don't gain weight easily.",
-      "I am taller or shorter than average.",
-      "\"Thin\" describes many of my bodily features (such as my hair, neck, fingers, and lips).",
-      "My energy fluctuates and often comes in bursts.",
-      "My appetite is variable (e.g., high one day and low the next).",
-      "I have a tendency to become bloated, gassy, or constipated.",
-      "My skin frequently becomes dry.",
-      "I tend to have cold hands and feet.",
-      "I am a light sleeper and often have difficulty falling asleep.",
-      "I prefer warm, moist weather to cold or dry weather."
-    ],
-    psych: [
-      "I am creative and imaginative.",
-      "I enjoy artistic forms of expression.",
-      "My mind is active and often restless.",
-      "I learn quickly but also forget quickly.",
-      "I become \"spaced out\" quite easily.",
-      "I have a tendency to feel anxious, insecure, and nervous.",
-      "I speak quietly and use hand gestures.",
-      "I am always on the go.",
-      "My lifestyle and daily routine are irregular.",
-      "My dreams are active and colourful."
-    ]
-  },
-  pitta: {
-    physical: [
-      "I have a medium build and gain or lose weight easily.",
-      "My height is average.",
-      "My physical features are sharp or pointed (such as nose, chin, and teeth).",
-      "My energy and activity levels are high.",
-      "My appetite is strong; I can eat large quantities of food.",
-      "My bowel movements are regular; I occasionally have diarrhea.",
-      "I perspire quite easily.",
-      "My skin is oily and has a reddish tone.",
-      "My eyes are penetrating and light in colour.",
-      "I prefer cooler weather and become irritable in hot weather."
-    ],
-    psych: [
-      "I am goal-oriented and can achieve anything to which I put my mind.",
-      "I have a good sense of humour.",
-      "I have a strong intellect and enjoy learning new things.",
-      "I have a natural ability to lead others.",
-      "I am a perfectionist.",
-      "I tend to become irritable, impatient, and angry.",
-      "I am critical of myself and others.",
-      "Many people think I'm stubborn.",
-      "I become irritable if I skip a meal.",
-      "I enjoy competition."
-    ]
-  },
-  kapha: {
-    physical: [
-      "I gain weight easily and lose weight with great difficulty.",
-      "I am short and stocky, or tall and sturdy.",
-      "\"Thick\" describes many of my bodily features (such as my hair, neck, fingers, and lips).",
-      "I have abundant strength and stamina.",
-      "My digestion is slow and I often feel heavy after eating.",
-      "My bowel movements are highly regular.",
-      "My skin is smooth and oily and tends to be pale.",
-      "I sleep deeply and soundly.",
-      "I catch colds quite frequently.",
-      "I prefer hot weather over cold or damp weather."
-    ],
-    psych: [
-      "I have a big heart and prefer to focus on the good in the world.",
-      "I am calm in nature and not easily angered.",
-      "I prefer a slow, relaxed lifestyle.",
-      "I don't learn as quickly as others, but my long-term memory is excellent.",
-      "I become sentimental quite easily; I often think about the past.",
-      "I am methodical in my actions.",
-      "I am highly protective of myself and my family.",
-      "I let negative emotions build up rather than addressing them.",
-      "I usually let others take the lead.",
-      "I am a natural listener and frequently help others with their problems."
-    ]
-  }
-};
-
-// scores[dosha][section][qIndex] = value
-let scores = { vata: {}, pitta: {}, kapha: {} };
-let currentMode = 'prakriti';
-let answeredCount = 0;
-const TOTAL_QUESTIONS = 60;
-
-function setMode(mode, btn) {
-  currentMode = mode;
-  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('modeLabel').textContent =
-    mode === 'prakriti' ? 'Prakṛti — Birth Constitution' : 'Vikṛti — Current State';
-}
-
-function buildQuestions() {
-  ['vata','pitta','kapha'].forEach(dosha => {
-    ['physical','psych'].forEach(section => {
-      const containerId = `${dosha}-${section}`;
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
-      questions[dosha][section].forEach((q, i) => {
-        const key = `${dosha}_${section}_${i}`;
-        const row = document.createElement('div');
-        row.className = 'question-row';
-        row.innerHTML = `
-          <div class="question-text-wrap">
-            <span class="question-num">${String(i+1).padStart(2,'0')}</span>
-            <span class="question-text">${q}</span>
+      <p style="margin:24px 0 12px; font-family:'Raleway','Noto Sans',sans-serif; font-size:11px; letter-spacing:0.18em; color:#7B766B; font-weight:700">PHYSICAL CHARACTERISTICS</p>
+      <sc-for list="{{ vataPhysical }}" as="q" hint-placeholder-count="10">
+        <div style="display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:10px 16px; padding:13px 0; border-bottom:1px solid rgba(122,92,68,0.14)">
+          <div style="flex:1 1 300px; min-width:240px; display:flex; align-items:baseline; gap:8px">
+            <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:11px; color:#7A5C44; font-weight:700; letter-spacing:0.04em; flex-shrink:0">{{ q.num }}</span>
+            <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.5; text-wrap:pretty">{{ q.text }}</span>
           </div>
-          <div class="rating-group" id="rg_${key}">
-            ${[0,1,2,3,4,5].map(v =>
-              `<button class="rating-btn" data-dosha="${dosha}" data-section="${section}" data-idx="${i}" data-val="${v}" onclick="selectRating(this)">${v}</button>`
-            ).join('')}
-          </div>`;
-        container.appendChild(row);
-      });
-    });
-  });
-}
+          <div style="display:flex; gap:5px; align-items:center; flex-shrink:0">
+            <button onClick="{{ q.buttons.0.on }}" aria-pressed="{{ q.buttons.0.pressed }}" style="{{ q.buttons.0.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">0</button>
+            <button onClick="{{ q.buttons.1.on }}" aria-pressed="{{ q.buttons.1.pressed }}" style="{{ q.buttons.1.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">1</button>
+            <button onClick="{{ q.buttons.2.on }}" aria-pressed="{{ q.buttons.2.pressed }}" style="{{ q.buttons.2.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">2</button>
+            <button onClick="{{ q.buttons.3.on }}" aria-pressed="{{ q.buttons.3.pressed }}" style="{{ q.buttons.3.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">3</button>
+            <button onClick="{{ q.buttons.4.on }}" aria-pressed="{{ q.buttons.4.pressed }}" style="{{ q.buttons.4.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">4</button>
+            <button onClick="{{ q.buttons.5.on }}" aria-pressed="{{ q.buttons.5.pressed }}" style="{{ q.buttons.5.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">5</button>
+          </div>
+        </div>
+      </sc-for>
+      <p style="margin:24px 0 12px; font-family:'Raleway','Noto Sans',sans-serif; font-size:11px; letter-spacing:0.18em; color:#7B766B; font-weight:700">PSYCHOLOGICAL CHARACTERISTICS</p>
+      <sc-for list="{{ vataPsych }}" as="q" hint-placeholder-count="10">
+        <div style="display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:10px 16px; padding:13px 0; border-bottom:1px solid rgba(122,92,68,0.14)">
+          <div style="flex:1 1 300px; min-width:240px; display:flex; align-items:baseline; gap:8px">
+            <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:11px; color:#7A5C44; font-weight:700; letter-spacing:0.04em; flex-shrink:0">{{ q.num }}</span>
+            <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.5; text-wrap:pretty">{{ q.text }}</span>
+          </div>
+          <div style="display:flex; gap:5px; align-items:center; flex-shrink:0">
+            <button onClick="{{ q.buttons.0.on }}" aria-pressed="{{ q.buttons.0.pressed }}" style="{{ q.buttons.0.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">0</button>
+            <button onClick="{{ q.buttons.1.on }}" aria-pressed="{{ q.buttons.1.pressed }}" style="{{ q.buttons.1.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">1</button>
+            <button onClick="{{ q.buttons.2.on }}" aria-pressed="{{ q.buttons.2.pressed }}" style="{{ q.buttons.2.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">2</button>
+            <button onClick="{{ q.buttons.3.on }}" aria-pressed="{{ q.buttons.3.pressed }}" style="{{ q.buttons.3.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">3</button>
+            <button onClick="{{ q.buttons.4.on }}" aria-pressed="{{ q.buttons.4.pressed }}" style="{{ q.buttons.4.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">4</button>
+            <button onClick="{{ q.buttons.5.on }}" aria-pressed="{{ q.buttons.5.pressed }}" style="{{ q.buttons.5.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">5</button>
+          </div>
+        </div>
+      </sc-for>
+      <div style="display:flex; align-items:center; gap:12px; margin-top:22px; padding:14px 20px; background:#FBF8F2; border:1px solid rgba(122,92,68,0.2); border-radius:14px; justify-content:space-between">
+        <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:11.5px; letter-spacing:0.1em; color:#7B766B; font-weight:600; white-space:nowrap">VĀTA SCORE</span>
+        <div style="flex:1; height:5px; background:#E7DECB; border-radius:3px; overflow:hidden; margin:0 6px"><div style="{{ vataBarStyle }}"></div></div>
+        <span style="font-family:'Cormorant Garamond','Noto Serif',serif; font-size:26px; font-weight:500; letter-spacing:0.02em; color:#5F5473">{{ vataTotal }}</span><span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:13px; color:#7B766B">/ 100</span>
+      </div>
+    </section>
 
-function selectRating(btn) {
-  const { dosha, section, idx, val } = btn.dataset;
-  const key = `${dosha}_${section}_${idx}`;
-  const group = document.getElementById(`rg_${key}`);
-  const isNew = !(scores[dosha][key] !== undefined);
-  const wasAnswered = scores[dosha][key] !== undefined;
-  scores[dosha][key] = parseInt(val);
-  group.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  if (!wasAnswered) { answeredCount++; updateProgress(); }
-  updateScores();
-}
+    <section data-screen-label="Doṣa Quiz — Pitta" style="margin-bottom:52px">
+      <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:20px; padding-bottom:12px; border-bottom:2px solid rgba(122,92,68,0.2)">
+        <h2 style="margin:0; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:32px; font-weight:500; letter-spacing:0.02em; color:#C0674B">Pitta</h2>
+        <span style="font-family:'Cormorant Garamond','Noto Serif',serif; font-style:italic; font-size:16px; color:#7B766B">Fire &amp; Water</span>
+      </div>
+      <p style="margin:24px 0 12px; font-family:'Raleway','Noto Sans',sans-serif; font-size:11px; letter-spacing:0.18em; color:#7B766B; font-weight:700">PHYSICAL CHARACTERISTICS</p>
+      <sc-for list="{{ pittaPhysical }}" as="q" hint-placeholder-count="10">
+        <div style="display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:10px 16px; padding:13px 0; border-bottom:1px solid rgba(122,92,68,0.14)">
+          <div style="flex:1 1 300px; min-width:240px; display:flex; align-items:baseline; gap:8px">
+            <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:11px; color:#7A5C44; font-weight:700; letter-spacing:0.04em; flex-shrink:0">{{ q.num }}</span>
+            <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.5; text-wrap:pretty">{{ q.text }}</span>
+          </div>
+          <div style="display:flex; gap:5px; align-items:center; flex-shrink:0">
+            <button onClick="{{ q.buttons.0.on }}" aria-pressed="{{ q.buttons.0.pressed }}" style="{{ q.buttons.0.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">0</button>
+            <button onClick="{{ q.buttons.1.on }}" aria-pressed="{{ q.buttons.1.pressed }}" style="{{ q.buttons.1.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">1</button>
+            <button onClick="{{ q.buttons.2.on }}" aria-pressed="{{ q.buttons.2.pressed }}" style="{{ q.buttons.2.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">2</button>
+            <button onClick="{{ q.buttons.3.on }}" aria-pressed="{{ q.buttons.3.pressed }}" style="{{ q.buttons.3.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">3</button>
+            <button onClick="{{ q.buttons.4.on }}" aria-pressed="{{ q.buttons.4.pressed }}" style="{{ q.buttons.4.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">4</button>
+            <button onClick="{{ q.buttons.5.on }}" aria-pressed="{{ q.buttons.5.pressed }}" style="{{ q.buttons.5.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">5</button>
+          </div>
+        </div>
+      </sc-for>
+      <p style="margin:24px 0 12px; font-family:'Raleway','Noto Sans',sans-serif; font-size:11px; letter-spacing:0.18em; color:#7B766B; font-weight:700">PSYCHOLOGICAL CHARACTERISTICS</p>
+      <sc-for list="{{ pittaPsych }}" as="q" hint-placeholder-count="10">
+        <div style="display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:10px 16px; padding:13px 0; border-bottom:1px solid rgba(122,92,68,0.14)">
+          <div style="flex:1 1 300px; min-width:240px; display:flex; align-items:baseline; gap:8px">
+            <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:11px; color:#7A5C44; font-weight:700; letter-spacing:0.04em; flex-shrink:0">{{ q.num }}</span>
+            <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.5; text-wrap:pretty">{{ q.text }}</span>
+          </div>
+          <div style="display:flex; gap:5px; align-items:center; flex-shrink:0">
+            <button onClick="{{ q.buttons.0.on }}" aria-pressed="{{ q.buttons.0.pressed }}" style="{{ q.buttons.0.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">0</button>
+            <button onClick="{{ q.buttons.1.on }}" aria-pressed="{{ q.buttons.1.pressed }}" style="{{ q.buttons.1.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">1</button>
+            <button onClick="{{ q.buttons.2.on }}" aria-pressed="{{ q.buttons.2.pressed }}" style="{{ q.buttons.2.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">2</button>
+            <button onClick="{{ q.buttons.3.on }}" aria-pressed="{{ q.buttons.3.pressed }}" style="{{ q.buttons.3.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">3</button>
+            <button onClick="{{ q.buttons.4.on }}" aria-pressed="{{ q.buttons.4.pressed }}" style="{{ q.buttons.4.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">4</button>
+            <button onClick="{{ q.buttons.5.on }}" aria-pressed="{{ q.buttons.5.pressed }}" style="{{ q.buttons.5.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">5</button>
+          </div>
+        </div>
+      </sc-for>
+      <div style="display:flex; align-items:center; gap:12px; margin-top:22px; padding:14px 20px; background:#FBF8F2; border:1px solid rgba(122,92,68,0.2); border-radius:14px; justify-content:space-between">
+        <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:11.5px; letter-spacing:0.1em; color:#7B766B; font-weight:600; white-space:nowrap">PITTA SCORE</span>
+        <div style="flex:1; height:5px; background:#E7DECB; border-radius:3px; overflow:hidden; margin:0 6px"><div style="{{ pittaBarStyle }}"></div></div>
+        <span style="font-family:'Cormorant Garamond','Noto Serif',serif; font-size:26px; font-weight:500; letter-spacing:0.02em; color:#C0674B">{{ pittaTotal }}</span><span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:13px; color:#7B766B">/ 100</span>
+      </div>
+    </section>
 
-function updateProgress() {
-  const pct = (answeredCount / TOTAL_QUESTIONS) * 100;
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressCount').textContent = `${answeredCount} / ${TOTAL_QUESTIONS}`;
-}
+    <section data-screen-label="Doṣa Quiz — Kapha" style="margin-bottom:52px">
+      <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:20px; padding-bottom:12px; border-bottom:2px solid rgba(122,92,68,0.2)">
+        <h2 style="margin:0; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:32px; font-weight:500; letter-spacing:0.02em; color:#33523E">Kapha</h2>
+        <span style="font-family:'Cormorant Garamond','Noto Serif',serif; font-style:italic; font-size:16px; color:#7B766B">Earth &amp; Water</span>
+      </div>
+      <p style="margin:24px 0 12px; font-family:'Raleway','Noto Sans',sans-serif; font-size:11px; letter-spacing:0.18em; color:#7B766B; font-weight:700">PHYSICAL CHARACTERISTICS</p>
+      <sc-for list="{{ kaphaPhysical }}" as="q" hint-placeholder-count="10">
+        <div style="display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:10px 16px; padding:13px 0; border-bottom:1px solid rgba(122,92,68,0.14)">
+          <div style="flex:1 1 300px; min-width:240px; display:flex; align-items:baseline; gap:8px">
+            <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:11px; color:#7A5C44; font-weight:700; letter-spacing:0.04em; flex-shrink:0">{{ q.num }}</span>
+            <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.5; text-wrap:pretty">{{ q.text }}</span>
+          </div>
+          <div style="display:flex; gap:5px; align-items:center; flex-shrink:0">
+            <button onClick="{{ q.buttons.0.on }}" aria-pressed="{{ q.buttons.0.pressed }}" style="{{ q.buttons.0.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">0</button>
+            <button onClick="{{ q.buttons.1.on }}" aria-pressed="{{ q.buttons.1.pressed }}" style="{{ q.buttons.1.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">1</button>
+            <button onClick="{{ q.buttons.2.on }}" aria-pressed="{{ q.buttons.2.pressed }}" style="{{ q.buttons.2.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">2</button>
+            <button onClick="{{ q.buttons.3.on }}" aria-pressed="{{ q.buttons.3.pressed }}" style="{{ q.buttons.3.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">3</button>
+            <button onClick="{{ q.buttons.4.on }}" aria-pressed="{{ q.buttons.4.pressed }}" style="{{ q.buttons.4.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">4</button>
+            <button onClick="{{ q.buttons.5.on }}" aria-pressed="{{ q.buttons.5.pressed }}" style="{{ q.buttons.5.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">5</button>
+          </div>
+        </div>
+      </sc-for>
+      <p style="margin:24px 0 12px; font-family:'Raleway','Noto Sans',sans-serif; font-size:11px; letter-spacing:0.18em; color:#7B766B; font-weight:700">PSYCHOLOGICAL CHARACTERISTICS</p>
+      <sc-for list="{{ kaphaPsych }}" as="q" hint-placeholder-count="10">
+        <div style="display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:10px 16px; padding:13px 0; border-bottom:1px solid rgba(122,92,68,0.14)">
+          <div style="flex:1 1 300px; min-width:240px; display:flex; align-items:baseline; gap:8px">
+            <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:11px; color:#7A5C44; font-weight:700; letter-spacing:0.04em; flex-shrink:0">{{ q.num }}</span>
+            <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.5; text-wrap:pretty">{{ q.text }}</span>
+          </div>
+          <div style="display:flex; gap:5px; align-items:center; flex-shrink:0">
+            <button onClick="{{ q.buttons.0.on }}" aria-pressed="{{ q.buttons.0.pressed }}" style="{{ q.buttons.0.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">0</button>
+            <button onClick="{{ q.buttons.1.on }}" aria-pressed="{{ q.buttons.1.pressed }}" style="{{ q.buttons.1.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">1</button>
+            <button onClick="{{ q.buttons.2.on }}" aria-pressed="{{ q.buttons.2.pressed }}" style="{{ q.buttons.2.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">2</button>
+            <button onClick="{{ q.buttons.3.on }}" aria-pressed="{{ q.buttons.3.pressed }}" style="{{ q.buttons.3.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">3</button>
+            <button onClick="{{ q.buttons.4.on }}" aria-pressed="{{ q.buttons.4.pressed }}" style="{{ q.buttons.4.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">4</button>
+            <button onClick="{{ q.buttons.5.on }}" aria-pressed="{{ q.buttons.5.pressed }}" style="{{ q.buttons.5.style }}" style-hover="transform:scale(1.08); border-color:#7A5C44">5</button>
+          </div>
+        </div>
+      </sc-for>
+      <div style="display:flex; align-items:center; gap:12px; margin-top:22px; padding:14px 20px; background:#FBF8F2; border:1px solid rgba(122,92,68,0.2); border-radius:14px; justify-content:space-between">
+        <span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:11.5px; letter-spacing:0.1em; color:#7B766B; font-weight:600; white-space:nowrap">KAPHA SCORE</span>
+        <div style="flex:1; height:5px; background:#E7DECB; border-radius:3px; overflow:hidden; margin:0 6px"><div style="{{ kaphaBarStyle }}"></div></div>
+        <span style="font-family:'Cormorant Garamond','Noto Serif',serif; font-size:26px; font-weight:500; letter-spacing:0.02em; color:#33523E">{{ kaphaTotal }}</span><span style="font-family:'Raleway','Noto Sans',sans-serif; font-size:13px; color:#7B766B">/ 100</span>
+      </div>
+    </section>
 
-function getTotal(dosha) {
-  return Object.values(scores[dosha]).reduce((a, b) => a + b, 0);
-}
+    <section data-screen-label="Doṣa Quiz — Submit" style="text-align:center; margin-top:44px; padding-top:36px; border-top:1px solid rgba(122,92,68,0.2)">
+      <p style="margin:0 0 22px; font-family:'Cormorant Garamond','Noto Serif',serif; font-style:italic; font-size:17.5px; color:#59685D">When you have answered all 60 statements, reveal your constitution below.</p>
+      <div style="display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:12px">
+        <button onClick="{{ reveal }}" style="display:inline-flex; align-items:center; gap:10px; padding:16px 40px; background:#33523E; color:#F7F3EC; border:none; cursor:pointer; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; font-weight:600; letter-spacing:0.02em; border-radius:999px; box-shadow:0 18px 38px -18px rgba(51,82,62,0.6); transition:background 0.25s, transform 0.25s" style-hover="background:#2A4635; transform:translateY(-2px)">Reveal My Doṣa →</button>
+        <button onClick="{{ reset }}" style="display:inline-block; padding:12px 26px; background:transparent; color:#7B766B; border:1px solid rgba(122,92,68,0.25); cursor:pointer; font-family:'Raleway','Noto Sans',sans-serif; font-size:12.5px; font-weight:600; letter-spacing:0.04em; border-radius:999px; transition:all 0.2s ease" style-hover="border-color:#7A5C44; color:#474747">Reset</button>
+      </div>
+      <p style="margin:16px 0 0; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:15.5px; color:#C0674B; font-style:italic; display:{{ noteDisplay }}">{{ noteText }}</p>
+    </section>
 
-function updateScores() {
-  ['vata','pitta','kapha'].forEach(d => {
-    const total = getTotal(d);
-    document.getElementById(`${d}-score`).textContent = total;
-    document.getElementById(`${d}-bar`).style.width = (total / 100 * 100) + '%';
-  });
-}
+    <sc-if value="{{ resultsVisible }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Doṣa Quiz — Results" ref="{{ panelRef }}" style="margin-top:44px; padding:clamp(26px, 4.5vw, 40px); background:rgba(247,243,236,0.9); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.5); border-radius:22px; box-shadow:0 40px 80px -44px rgba(42,58,46,0.5); animation:fadeUp 0.5s ease">
+        <p style="margin:0 0 4px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:26px; font-weight:500; color:#33523E">Your Āyurvedic Constitution</p>
+        <p style="margin:0 0 28px; font-family:'Raleway','Noto Sans',sans-serif; font-size:12px; letter-spacing:0.12em; color:#7B766B; font-weight:600">PRAKṚTI — YOUR LIFELONG CONSTITUTION</p>
 
-function calculateResults() {
-  const v = getTotal('vata');
-  const p = getTotal('pitta');
-  const k = getTotal('kapha');
-  const max = Math.max(v, p, k);
+        <div style="display:flex; flex-direction:column; gap:16px; margin-bottom:30px">
+          <div style="display:flex; align-items:center; gap:14px">
+            <span style="flex:0 0 76px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:18px; letter-spacing:0.03em; color:#5F5473">Vāta</span>
+            <div style="flex:1; height:9px; background:#E7DECB; border-radius:5px; overflow:hidden"><div style="{{ resVataBarStyle }}"></div></div>
+            <span style="flex:0 0 46px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:18px; color:#59685D; text-align:right">{{ resV }}</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:14px">
+            <span style="flex:0 0 76px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:18px; letter-spacing:0.03em; color:#C0674B">Pitta</span>
+            <div style="flex:1; height:9px; background:#E7DECB; border-radius:5px; overflow:hidden"><div style="{{ resPittaBarStyle }}"></div></div>
+            <span style="flex:0 0 46px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:18px; color:#59685D; text-align:right">{{ resP }}</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:14px">
+            <span style="flex:0 0 76px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:18px; letter-spacing:0.03em; color:#33523E">Kapha</span>
+            <div style="flex:1; height:9px; background:#E7DECB; border-radius:5px; overflow:hidden"><div style="{{ resKaphaBarStyle }}"></div></div>
+            <span style="flex:0 0 46px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:18px; color:#59685D; text-align:right">{{ resK }}</span>
+          </div>
+        </div>
 
-  document.getElementById('res-vata-score').textContent = v;
-  document.getElementById('res-pitta-score').textContent = p;
-  document.getElementById('res-kapha-score').textContent = k;
+        <div style="padding:22px 24px; border-left:3px solid #C0674B; background:#FBF8F2; border-radius:0 12px 12px 0; margin-bottom:26px">
+          <p style="margin:0 0 6px; font-family:'Raleway','Noto Sans',sans-serif; font-size:11px; letter-spacing:0.16em; color:#7B766B; font-weight:700">YOUR PRIMARY CONSTITUTION</p>
+          <p style="margin:0 0 8px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:27px; font-weight:500; color:{{ constitutionColor }}">{{ constitutionName }}</p>
+          <p style="margin:0; font-family:'Cormorant Garamond','Noto Serif',serif; font-style:italic; font-size:17.5px; line-height:1.6; color:#59685D">{{ constitutionShort }}</p>
+        </div>
 
-  // animate bars
-  setTimeout(() => {
-    document.getElementById('res-vata-bar').style.width = (v / 100 * 100) + '%';
-    document.getElementById('res-pitta-bar').style.width = (p / 100 * 100) + '%';
-    document.getElementById('res-kapha-bar').style.width = (k / 100 * 100) + '%';
-  }, 80);
+        <div style="margin:26px 0; padding:26px 24px; background:#FBF8F2; border:1px solid rgba(122,92,68,0.2); border-radius:16px">
+          <p style="margin:0 0 16px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; line-height:1.7; color:#474747; text-wrap:pretty">Your result above is your <em style="color:#7A5C44">Prakṛti</em> — your lifelong baseline. <em style="color:#7A5C44">Vikṛti</em> is how you feel <em>right now</em>, and the Doṣa that's currently stirred up isn't always your dominant one.</p>
+          <p style="margin:0 0 14px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:19px; color:#33523E; font-weight:500">Does any of this sound like you lately?</p>
+          <p style="margin:0 0 8px; font-family:'Raleway','Noto Sans',sans-serif; font-size:14.5px; line-height:1.6; color:#474747"><strong style="font-weight:700; color:#5F5473">Vāta</strong> — restless or broken sleep, dry skin, cold hands, a scattered or anxious mind, irregular digestion</p>
+          <p style="margin:0 0 8px; font-family:'Raleway','Noto Sans',sans-serif; font-size:14.5px; line-height:1.6; color:#474747"><strong style="font-weight:700; color:#C0674B">Pitta</strong> — running hot, impatient or overly critical, easily frustrated, perfectionistic, craving cool</p>
+          <p style="margin:0 0 8px; font-family:'Raleway','Noto Sans',sans-serif; font-size:14.5px; line-height:1.6; color:#474747"><strong style="font-weight:700; color:#33523E">Kapha</strong> — dull or heavy, low on motivation, oversleeping, sluggish, holding on to things and the past</p>
+          <p style="margin:16px 0 0; font-family:'Cormorant Garamond','Noto Serif',serif; font-style:italic; font-size:17px; line-height:1.6; color:#474747; text-wrap:pretty">Naming which Doṣa is stirred up right now — and knowing what to do about it — is what a Strategy Session is for.</p>
+        </div>
 
-  const constitution = determineConstitution(v, p, k);
-  document.getElementById('constitutionName').textContent = constitution.name;
-  document.getElementById('constitutionNote').textContent = constitution.note;
+        <div style="text-align:center; margin:28px 0 6px">
+          <p style="margin:0 auto 20px; max-width:52em; font-family:'Raleway','Noto Sans',sans-serif; font-size:14px; color:#59685D; line-height:1.7; text-wrap:pretty">In a Strategy Session, Dax works within Yoga Therapy — movement, breath, daily rhythm, and diet and lifestyle guidance suited to your constitution. If something falls outside that scope and calls for an Āyurvedic doctor's assessment or medicine, she'll tell you and point you toward the right care.</p>
+          <a href="https://nestymt.janeapp.com/#/staff_member/106/treatment/121" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:10px; padding:16px 40px; background:#33523E; color:#F7F3EC; text-decoration:none; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; font-weight:600; letter-spacing:0.02em; border-radius:999px; box-shadow:0 18px 38px -18px rgba(51,82,62,0.6); transition:background 0.25s, transform 0.25s" style-hover="background:#2A4635; transform:translateY(-2px); color:#F7F3EC">Book a Strategy Session →</a>
+        </div>
 
-  const panel = document.getElementById('resultsPanel');
-  panel.classList.add('visible');
-  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+        <p style="margin:26px 0 0; font-family:'Raleway','Noto Sans',sans-serif; font-size:13px; color:#7B766B; font-style:italic; border-top:1px solid rgba(122,92,68,0.2); padding-top:20px; line-height:1.7; text-wrap:pretty">Note: A simple questionnaire cannot fully capture the dynamism of the Doṣa-s. Most individuals have one primary Doṣa followed by a prominent secondary Doṣa. Single Doṣa dominance is rare, and tri-Doṣa balance is very rare. We recommend consulting a qualified Āyurvedic practitioner for a comprehensive assessment.</p>
 
-function determineConstitution(v, p, k) {
-  const total = v + p + k;
-  if (total === 0) return { name: '—', note: 'Please complete the questionnaire.' };
+        <details class="full-desc" style="margin-top:24px; border-top:1px solid rgba(122,92,68,0.2); padding-top:8px">
+          <summary style="cursor:pointer; padding:14px 0; font-family:'Raleway','Noto Sans',sans-serif; font-size:13px; font-weight:700; letter-spacing:0.1em; color:#33523E; display:flex; align-items:center; gap:8px">READ YOUR FULL TYPE</summary>
+          <div style="padding:8px 2px 6px">
+            <div>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">The classical texts describe your constitution — your Prakṛti — in terms of three energies, or Doṣa-s: Vāta (V), Pitta (P), and Kapha (K). From these arise the constitutional types: three single-Doṣa types, the dual types, the tri-Doṣic VPK, and the near-perfectly Balanced.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Most people are a blend. Pure single-Doṣa types are less common, and the two rarest types sit at opposite ends of the spectrum: the tri-Doṣic VPK, who carries all three energies in strength, and the Balanced individual, in whom the three sit in quiet equilibrium.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">A word on the dual types. When two Doṣa-s share the lead, the order matters: a constitution can lean in either direction depending on which Doṣa predominates. Vāta-Pitta and Pitta-Vāta are built from the same two energies, but the one named first sets the tone.</p>
+            </div>
 
-  const vPct = v / total;
-  const pPct = p / total;
-  const kPct = k / total;
+            <div style="display:{{ descV }}">
+              <h4 style="margin:20px 0 8px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:21px; font-weight:500; color:#33523E">Vāta (V)</h4>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Your nature is movement, air, and change.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You are likely thin, and you gain weight only with difficulty — except when you overeat with real determination, which you may do to steady yourself or to fuel the next burst of activity. Your frame tends to be narrow through the shoulders and hips, and your joints often crack when you move. You fidget; like a tendency toward heaviness in others, fidgeting tends to run in families.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Above all, you are dry. Your skin chaps easily and is prone to corns and calluses; your hair tends to be coarse, dry, and curly. You struggle with cold and often complain of poor circulation in your hands and feet. Your skin is usually cool to the touch, you sweat little, and you love to be out in the sun.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Your appetite is irregular, and your love of excitement pulls you into irregular eating that only worsens your digestion. Chronic constipation is a familiar companion, a product of your innate astringency. You love soupy, oily, hot foods, but you tend to go to extremes — either indulging in heavy, hard-to-digest dishes or denying yourself all richness at once.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Your energy comes in spurts and bursts rather than a steady stream. Too often you prop it up with pungent stimulants like coffee rather than admit you are tired. You can sustain a pitch of frenzied activity for a while, but exhaustion always follows, and you may not notice it until sheer fatigue forces you to stop. Sleep can be elusive: you either struggle to fall or stay asleep, or you stay so exhausted that when you finally rest you sleep like the dead.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You feel pain more keenly than other types, and loud noise wears on you — your nervous system seems to carry less insulation than it needs. That deep drive to avoid pain can surface as fear. This is why you adore oil massage: it soothes and quiets an overactive nervous system, easing both physical and mental tenderness. You live an erratic life because routine is genuinely hard for you to build, and your restless, bitter-tinged curiosity keeps you forever tinkering with yourself and your surroundings. If changeability defines most of what you do, you are Vāta-predominant.</p>
+            </div>
 
-  // Tridosha: all within ~10% of each other
-  const spread = Math.max(vPct, pPct, kPct) - Math.min(vPct, pPct, kPct);
-  if (spread < 0.12) {
-    return { name: 'Tri-Doṣa', note: 'You show a balanced expression of all three doṣa-s — a rare and distinctive constitution.' };
+            <div style="display:{{ descP }}">
+              <h4 style="margin:20px 0 8px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:21px; font-weight:500; color:#33523E">Pitta (P)</h4>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Your nature is fire, heat, and sharp intensity.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You run hot — intense, driven, and quick to irritation. You are usually medium in height, weight, and endurance. Your skin tends to be light and reddens fast in the sun, after exercise, or when you blush; you sunburn easily and often carry plenty of freckles and moles. Your hair is typically straight and light in colour. Anyone whose hair is naturally red is at least part Pitta.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You sweat easily, because of all that heat stored inside. The sour and salty in your nature keep your appetite reliably strong, and you love to eat — food and drink take the edge off the fire. Miss a meal and you may "consume" some unlucky bystander with your stored anger instead. You enjoy nearly all foods and usually digest them well; you tend toward loose stools and are rarely constipated.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">That same fire sharpens your mind. You think quickly and grow impatient around people who are slower or less focused than you. You usually sleep well, because you regard sleep as sensible — but let yourself become obsessed with work and you'll spend the nights awake. You bring the same intensity and competitiveness to everything, work or play, and your pungent edge means you anger easily, even when you don't outwardly lose your temper.</p>
+            </div>
+
+            <div style="display:{{ descK }}">
+              <h4 style="margin:20px 0 8px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:21px; font-weight:500; color:#33523E">Kapha (K)</h4>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Your nature is earth, water, and steady strength.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You are likely a solid, heavyset build — a natural athlete when you exercise properly, and someone who seems to gain weight just by looking at food when you neglect it. You are healthy most of the time, especially when you don't overeat. You don't feel the fierce physical hunger that Vāta and Pitta types do, because sweetness runs strong in you by nature — but you can grow attached to food as a form of emotional comfort. You sleep soundly and tend to oversleep.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You generally don't crave the excitement and stimulation that Vāta and Pitta chase, even where sex is concerned — though once you are drawn in, the sour and salty rise in you and your appetites wake up. You are stable, unhurried, and inclined to be content. That attachment to a comfortable status quo is your gift and your trap: it can make you averse to change, and at its worst it hardens into greed, stubbornness, or resistance to anything new. Where Vāta needs grounding and Pitta needs a challenge, you need motivation and stimulation to keep from settling too deep.</p>
+            </div>
+
+            <div style="display:{{ descVP }}">
+              <h4 style="margin:20px 0 8px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:21px; font-weight:500; color:#33523E">Vāta-Pitta (VP)</h4>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You carry the lightness of air and the intensity of fire.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You generally share Vāta's poor circulation and love of heat — but your Pitta side sets firm limits on how much heat you can actually endure. The Pitta in you loves to eat; the Vāta in you makes large meals hard to digest. Many of your traits are visible blends of the two: wavy hair, for instance, is Vāta's curl meeting Pitta's straightness.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Often, though, the two don't blend so much as take turns. When you are out of balance, fear alternates with anger as your response to stress, and that swing can tip into bullying or domineering behaviour. The Pitta in you feels the need to command; the Vāta in you plants doubt about your fitness to command — and the uneasy compromise can become the domination of those weaker than yourself.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">At your best, you marry Vāta's capacity for original thought to Pitta's skill at putting theory to work. Lightness and intensity are the qualities V and P share, and your work is to harness that lightness for intensive self-development. Left unguided, it runs the other way: Vāta's pull toward numbing pain and Pitta's pull toward amplifying intensity can drag you into deeper patterns of addiction than either type knows alone.</p>
+            </div>
+
+            <div style="display:{{ descPV }}">
+              <h4 style="margin:20px 0 8px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:21px; font-weight:500; color:#33523E">Pitta-Vāta (PV)</h4>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Fire leads in you, with the wind close behind.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You share the same two energies as the Vāta-Pitta type, but the order is reversed: here Pitta sets the tone. You lead with heat, precision, and the drive to transform things, and Vāta's movement and creativity ride on top of that fire. Among the dual constitutions you are often the most dynamic and energetic — quick-minded, ambitious, and inventive — though you also overstimulate more easily than most, because the reactive nervous system of Vāta is wired to an engine that already runs hot.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Physically you tend toward a medium or lean build, lighter than a pure Pitta, with muscle that is reasonably developed rather than heavy. Your body runs warm. Your skin is sensitive, warm, and on the thinner side, and it may alternate between oily and dry as the two Doṣa-s trade places. Your hair is often fine and may grey or thin earlier than most, and your eyes tend to be bright and penetrating, frequently sensitive to light. In temperature you lean cool — you dislike excessive heat, yet you can carry cold hands and feet (Vāta) over a core that still feels hot inside (Pitta) at the very same time.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Yours is one of the most variable digestions of any constitution. Your appetite is strong and you grow irritable when meals are delayed, but your digestion fluctuates under stress, tipping toward acidity, bloating, and gas, and swinging between constipation and loose stools. Mentally you are formidable: intelligent, analytical, a fast learner, imaginative and articulate, an efficient and innovative problem-solver. That same wiring brings impatience, anxiety, perfectionism, overthinking, and a real difficulty switching off — your mind stays lit long after you'd like it to dim. Sleep is often light and easily interrupted, rich with vivid dreams, and hard to enter at all when your thoughts are still racing. You thrive on vigorous, challenging movement and on learning new skills, but overtraining, relentless competition, and chronic short sleep will cost you. When you fall out of balance, it tends to show as acid reflux, gastritis, headaches or migraines, insomnia, anxiety, burnout, inflammatory skin, and bowels that alternate between bound and loose.</p>
+            </div>
+
+            <div style="display:{{ descPK }}">
+              <h4 style="margin:20px 0 8px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:21px; font-weight:500; color:#33523E">Pitta-Kapha (PK)</h4>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You combine the fire of Pitta with the ground of Kapha.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You probably adjust to today's confusion, irregularity, and constant change better than any other constitution, because you pair Kapha's stability with Pitta's adaptability. Many people who achieve all-round success in life are PKs. Pitta's active metabolism balances Kapha's powerful physique to keep you physically healthy, and Pitta's anger is well tempered by Kapha's caution to keep you mentally steady. You prefer temperate climates but can easily handle extremes of heat or cold, and you enjoy — and benefit from — vigorous exercise, sex included.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Your shadow rises from the oiliness and wetness that Pitta and Kapha share. The ease with which you succeed can feed Pitta's arrogance and overconfidence and Kapha's smug self-satisfaction, and together these can seal you off — completely and efficiently — from any reality other than the one you wish to see. This is where the oiliness shows: like water off a duck's back, criticism slides away unregarded while only flattery is let in. It can make a very successful PK very difficult to live with.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Because Vāta is naturally minimized in you, you need what Vāta provides: the dryness of introspection or spiritual discipline, and the irregularity of unpredictable situations, to keep overconfidence in check.</p>
+            </div>
+
+            <div style="display:{{ descKP }}">
+              <h4 style="margin:20px 0 8px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:21px; font-weight:500; color:#33523E">Kapha-Pitta (KP)</h4>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Ground leads in you, with fire held steadily within it.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You share the same two energies as the Pitta-Kapha type, but here Kapha sets the tone. You lead with the stability, endurance, and nourishing solidity of earth and water, and Pitta's metabolic strength and intensity burn steadily inside that frame rather than running the show. This is often described as one of the strongest constitutions physically — you have the build to do real work and the fire to power it.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You tend toward a medium-to-large frame with good muscle that you gain easily; you also gain fat more readily than a pure Pitta would. Your skin is thick and smooth, your hair lustrous, your stamina good. Your digestion is one of your quieter gifts: consistently strong, with a regular appetite and an efficient metabolism — though when you overreach it, you overeat, feel sluggish after meals, and can tip toward acid reflux and steady weight gain. You tolerate cold well, dislike humid heat, and generally feel warm overall. In mind you are practical, organized, methodical, and dependable, with an excellent memory and deep reserves of patience and determination.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Emotionally you are steady in a way lighter types envy — loyal, compassionate, disciplined, and resilient, hard to knock off course. Your shadow is the flip side of that solidity: stubbornness, possessiveness, competitiveness, and a difficulty letting go. Your anger is not Pitta's quick flare but something slower — it builds beneath the surface and, once roused, burns long and hot. You sleep deeply and long, and you are difficult to wake. You have excellent tolerance for resistance training, endurance work, and sustained effort, and you genuinely need enough intensity in your life to keep Kapha from settling into stagnation. When you fall out of balance, it tends to show as weight gain, high cholesterol, inflammatory skin conditions or acne, a sluggish metabolism, congestion, and — on the emotional side — suppressed anger and an over-tight grip on the people and things you love.</p>
+            </div>
+
+            <div style="display:{{ descVK }}">
+              <h4 style="margin:20px 0 8px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:21px; font-weight:500; color:#33523E">Vāta-Kapha (VK)</h4>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You are cold twice over — the air of Vāta meeting the water of Kapha.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Vāta and Kapha are united in coldness. You don't suffer physical cold as sharply as a pure Vāta, because Kapha lends you strength and insulation — but you carry a double emotional need for warmth. You tend to be tall, yet average in build and in most other physical qualities, much as Pitta types are. Your lack of heat usually shows up as digestive trouble, especially constipation, and respiratory conditions with heavy mucus are common too.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You are usually zealous about whatever you take on, and you often overdo it by forgetting to use discretion. You can be light, open, and airy by turns, then deep and secretive. Without a strong Pitta fire to integrate them, your two natures — diametrically opposed — are especially hard to reconcile, so you must be particularly wary of jumping to conclusions before you've properly investigated. And because Kapha's deep emotional nature is wedded to Vāta's up-and-down sensitivity, emotional hurt goes deep in you and stays deep.</p>
+            </div>
+
+            <div style="display:{{ descKV }}">
+              <h4 style="margin:20px 0 8px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:21px; font-weight:500; color:#33523E">Kapha-Vāta (KV)</h4>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Ground leads in you, with the wind moving quietly underneath.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You share the same two energies as the Vāta-Kapha type, but here Kapha sets the tone. Kapha gives you stability and structure; Vāta brings movement and variability beneath it. The result is a particular kind of person — calm and settled on the surface, while a good deal of mental activity runs on inside. To others you can look unhurried and unbothered; within, the wind is rarely still.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You tend toward a medium-to-large frame with a body weight that varies, and you're prone to water retention. One of your quiet paradoxes is dry skin over a heavier build — Vāta's dryness inside Kapha's fullness. Your joints tend to be thick, your hands and feet cold, your movements on the slower side. Yours is usually the weakest digestion of the dual constitutions: your appetite is irregular, your digestion slow, and you're prone to bloating, gas, constipation, and a heaviness that lingers after eating. You dislike cold weather, prefer warmth, and chill easily. In mind you are thoughtful, creative, patient, and reflective — reliable and compassionate, with an excellent long-term memory.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Emotionally you are nurturing, calm, loyal, and forgiving. Your challenges gather on the quieter end of the spectrum: worry, attachment, indecision, procrastination, a tendency to withdraw, and — when you're severely out of balance — a low, heavy mood that can be hard to shift, a fear of change married to a resistance to it. You sleep long, yet may still wake unrefreshed, and you lean toward oversleeping; when Vāta becomes aggravated, your dreams turn vivid. You do best with regular, warming movement and value consistency over intensity — too little activity lets Kapha stagnate, while too much irregular activity stirs Vāta up. When you fall out of balance, it tends to show as chronic constipation, edema, sinus congestion and seasonal allergies, fatigue and low mood, anxiety, stiffness in the joints and muscles, poor circulation, and weight gain that arrives despite an unreliable appetite.</p>
+            </div>
+
+            <div style="display:{{ descVPK }}">
+              <h4 style="margin:20px 0 8px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:21px; font-weight:500; color:#33523E">VPK — Tri-Doṣic (V-P-K)</h4>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">You carry all three energies in full strength.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Yours is one of the two rarest results. All three Doṣa-s — the movement of Vāta, the fire of Pitta, and the ground of Kapha — are present in you in roughly equal force. In balance, this is a remarkable constitution: you can draw on Vāta's creativity, Pitta's drive, and Kapha's endurance in turn, and few types are as broadly capable or as physically resilient when well cared for.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">The difficulty is that balance is harder to hold and harder to recover. Where a single-Doṣa type has one tendency to manage, you have three, and when you slip, all three can go out of balance at once — the restlessness, the heat, and the heaviness arriving together rather than one at a time. This is why tri-Doṣic people who let all three energies fall out of order are rarely healthy without effort, and why a genuinely disciplined life — regular routine, attentive diet, steady self-observation — matters more for you than for almost anyone else. The reward for that discipline is unusual: kept in balance, you have range and stamina that narrower constitutions simply don't.</p>
+            </div>
+
+            <div style="display:{{ descBAL }}">
+              <h4 style="margin:20px 0 8px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:21px; font-weight:500; color:#33523E">Balanced</h4>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Your three energies sit in quiet equilibrium.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">Yours is the other rare result — and, in a sense, the fortunate one. In you, Vāta, Pitta, and Kapha exist in near-equal, settled proportion. None dominates, none is starved, and the qualities that pull other people to extremes tend to cancel gently in you toward the middle. You are usually healthy, and you stay that way because it takes real, sustained stress before an imbalance can take hold at all.</p>
+              <p style="margin:0 0 14px; font-family:'Raleway','Noto Sans',sans-serif; font-size:15px; color:#474747; line-height:1.75; text-wrap:pretty">This does not make you invulnerable or exempt from care — it means your margin is wider. Where another type tips into imbalance from a poor week of sleep or a change of season, you can usually absorb the disturbance and return to centre on your own. The risk hidden in that resilience is complacency: because imbalance comes so rarely, it can be well established before you notice it, and because no single Doṣa announces itself loudly in you, the early signals are subtle. Your work is less about correcting a constant tendency and more about protecting a good thing — keeping the routines, diet, and rhythms that hold your equilibrium in place.</p>
+            </div>
+
+            <div style="display:{{ dualNoteDisplay }}; font-family:'Raleway','Noto Sans',sans-serif; font-size:13.5px; color:#7B766B; font-style:italic; line-height:1.7; margin-top:18px; padding-top:16px; border-top:1px dashed rgba(122,92,68,0.2); text-wrap:pretty">The dual-Doṣa portraits draw on classical Āyurvedic principles as set down in texts such as the Charaka Saṃhitā, Suśruta Saṃhitā, and Aṣṭāṅga Hṛdaya, alongside contemporary reviews and research into validated Prakṛti assessment tools. It's worth being straight about the evidence: modern research supports the reality of constitutional variation and has produced increasingly reliable ways to assess it, but the detailed personality and clinical profiles of the dual constitutions remain rooted primarily in classical doctrine rather than in large, independent clinical trials. Read these descriptions as a time-tested framework for understanding your tendencies — not as clinically validated fact about every trait.</div>
+
+            <div style="margin-top:30px; padding-top:16px; border-top:1px dashed rgba(122,92,68,0.2)">
+              <h4 style="margin:0 0 8px; font-family:'Cormorant Garamond','Noto Serif',serif; font-size:18.5px; font-weight:500; color:#33523E">A Note Before You Go</h4>
+              <p style="margin:0 0 12px; font-family:'Raleway','Noto Sans',sans-serif; font-size:13.5px; color:#7B766B; font-style:italic; line-height:1.7; text-wrap:pretty">Constitutional types are simple, but not simplistic. Every body and mind is unlike any other, and your type does not lock you into a stereotype — it gives you information about metabolic tendencies so deeply ingrained that they must be actively balanced if you are to stay in balance.</p>
+              <p style="margin:0 0 12px; font-family:'Raleway','Noto Sans',sans-serif; font-size:13.5px; color:#7B766B; font-style:italic; line-height:1.7; text-wrap:pretty">Your constitution does not change, but your perception of it may. Come back to this evaluation after some time and you may find your first reading was off — which is normal, because as we grow healthier our sense of reality grows clearer, and what once seemed impossible to grasp can suddenly become plain. Even if you've misjudged your type today, living for a while according to your current condition will be therapeutic.</p>
+              <p style="margin:0; font-family:'Raleway','Noto Sans',sans-serif; font-size:13.5px; color:#7B766B; font-style:italic; line-height:1.7; text-wrap:pretty">Think of your result as a foundation. If the foundation is good, what you build on it will be good; if it's imperfect, no amount of building can quite save the structure above it. This is the start of the road — the beginning of a longer, richer understanding of yourself.</p>
+            </div>
+          </div>
+        </details>
+      </section>
+    </sc-if>
+
+  </div>
+
+  <dc-import name="SiteFooter" hint-size="100%,300px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { answers: {}, results: null, barsIn: false, note: '' };
+
+  constructor(props) {
+    super(props);
+    this.panelRef = React.createRef();
+
+    this.QUESTIONS = {
+      vata: {
+        physical: [
+          `I am slender and don't gain weight easily.`,
+          `I am taller or shorter than average.`,
+          `"Thin" describes many of my bodily features (such as my hair, neck, fingers, and lips).`,
+          `My energy fluctuates and often comes in bursts.`,
+          `My appetite is variable (e.g., high one day and low the next).`,
+          `I have a tendency to become bloated, gassy, or constipated.`,
+          `My skin frequently becomes dry.`,
+          `I tend to have cold hands and feet.`,
+          `I am a light sleeper and often have difficulty falling asleep.`,
+          `I prefer warm, moist weather to cold or dry weather.`
+        ],
+        psych: [
+          `I am creative and imaginative.`,
+          `I enjoy artistic forms of expression.`,
+          `My mind is active and often restless.`,
+          `I learn quickly but also forget quickly.`,
+          `I become "spaced out" quite easily.`,
+          `I have a tendency to feel anxious, insecure, and nervous.`,
+          `I speak quietly and use hand gestures.`,
+          `I am always on the go.`,
+          `My lifestyle and daily routine are irregular.`,
+          `My dreams are active and colourful.`
+        ]
+      },
+      pitta: {
+        physical: [
+          `I have a medium build and gain or lose weight easily.`,
+          `My height is average.`,
+          `My physical features are sharp or pointed (such as nose, chin, and teeth).`,
+          `My energy and activity levels are high.`,
+          `My appetite is strong; I can eat large quantities of food.`,
+          `My bowel movements are regular; I occasionally have diarrhea.`,
+          `I perspire quite easily.`,
+          `My skin is oily and has a reddish tone.`,
+          `My eyes are penetrating and light in colour.`,
+          `I prefer cooler weather and become irritable in hot weather.`
+        ],
+        psych: [
+          `I am goal-oriented and can achieve anything to which I put my mind.`,
+          `I have a good sense of humour.`,
+          `I have a strong intellect and enjoy learning new things.`,
+          `I have a natural ability to lead others.`,
+          `I am a perfectionist.`,
+          `I tend to become irritable, impatient, and angry.`,
+          `I am critical of myself and others.`,
+          `Many people think I'm stubborn.`,
+          `I become irritable if I skip a meal.`,
+          `I enjoy competition.`
+        ]
+      },
+      kapha: {
+        physical: [
+          `I gain weight easily and lose weight with great difficulty.`,
+          `I am short and stocky, or tall and sturdy.`,
+          `"Thick" describes many of my bodily features (such as my hair, neck, fingers, and lips).`,
+          `I have abundant strength and stamina.`,
+          `My digestion is slow and I often feel heavy after eating.`,
+          `My bowel movements are highly regular.`,
+          `My skin is smooth and oily and tends to be pale.`,
+          `I sleep deeply and soundly.`,
+          `I catch colds quite frequently.`,
+          `I prefer hot weather over cold or damp weather.`
+        ],
+        psych: [
+          `I have a big heart and prefer to focus on the good in the world.`,
+          `I am calm in nature and not easily angered.`,
+          `I prefer a slow, relaxed lifestyle.`,
+          `I don't learn as quickly as others, but my long-term memory is excellent.`,
+          `I become sentimental quite easily; I often think about the past.`,
+          `I am methodical in my actions.`,
+          `I am highly protective of myself and my family.`,
+          `I let negative emotions build up rather than addressing them.`,
+          `I usually let others take the lead.`,
+          `I am a natural listener and frequently help others with their problems.`
+        ]
+      }
+    };
+
+    this.TYPES = {
+      V:   { name: 'Vāta (V)',        colour: '#5F5473', kind: 'single', short: `At your best: imaginative, adaptable, quick-minded, and full of creative energy.` },
+      P:   { name: 'Pitta (P)',       colour: '#C0674B', kind: 'single', short: `At your best: focused, courageous, warm, and sharp — someone who thrives on a challenge.` },
+      K:   { name: 'Kapha (K)',       colour: '#33523E', kind: 'single', short: `At your best: calm, steady, compassionate, and deeply reliable, with stamina others envy.` },
+      VP:  { name: 'Vāta-Pitta (VP)', colour: '#5F5473', kind: 'dual',   short: `At your best: inventive and driven — original ideas (Vāta) put to work with focus and fire (Pitta).` },
+      PV:  { name: 'Pitta-Vāta (PV)', colour: '#C0674B', kind: 'dual',   short: `At your best: dynamic and decisive — Pitta's fire quickened by Vāta's inventive movement.` },
+      PK:  { name: 'Pitta-Kapha (PK)', colour: '#C0674B', kind: 'dual',  short: `At your best: capable and grounded — Pitta's drive carried on Kapha's stamina and calm.` },
+      KP:  { name: 'Kapha-Pitta (KP)', colour: '#33523E', kind: 'dual',  short: `At your best: one of the strongest builds — Kapha's endurance powered by steady Pitta fire.` },
+      VK:  { name: 'Vāta-Kapha (VK)', colour: '#5F5473', kind: 'dual',   short: `At your best: imaginative and steadfast — Vāta's creativity anchored by Kapha's patience.` },
+      KV:  { name: 'Kapha-Vāta (KV)', colour: '#33523E', kind: 'dual',   short: `At your best: calm on the surface and quietly creative beneath — steady, thoughtful, and kind.` },
+      VPK: { name: 'VPK — Tri-Doṣic', colour: '#7A5C44', kind: 'even',   short: `At your best: rare range — creativity, drive, and endurance all on tap when you keep them balanced.` },
+      BAL: { name: 'Balanced',        colour: '#7A5C44', kind: 'even',   short: `At your best: rare equilibrium — steady, resilient, and hard to knock off centre.` }
+    };
+
+    this.DOSHA_COLORS = { vata: '#5F5473', pitta: '#C0674B', kapha: '#33523E' };
+    this.BTN_BASE = "width:36px;height:36px;border-radius:50%;border:1px solid rgba(122,92,68,0.25);cursor:pointer;font-family:'Raleway','Noto Sans',sans-serif;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;transition:all 0.16s ease;";
   }
 
-  // Sort doshas by score
-  const ranked = [
-    { name: 'Vāta', score: v, pct: vPct },
-    { name: 'Pitta', score: p, pct: pPct },
-    { name: 'Kapha', score: k, pct: kPct }
-  ].sort((a, b) => b.score - a.score);
+  total(dosha) {
+    const answers = this.state.answers;
+    let sum = 0;
+    for (const key in answers) {
+      if (key.indexOf(dosha + '_') === 0) sum += answers[key];
+    }
+    return sum;
+  }
 
-  const [first, second] = ranked;
-  const diff = first.pct - second.pct;
+  // ── 11-type classifier on RAW scores (each Doṣa 0–100) ──
+  // Single: top − second ≥ 20.  Even: top − bottom ≤ 10 (avg ≥ 60 → VPK, else Balanced).
+  // Else Dual, named lead→second in score order. Tie-break: V > P > K.
+  determineConstitution(v, p, k) {
+    if (v + p + k === 0) return null;
+    const priority = { V: 0, P: 1, K: 2 };
+    const ranked = [{ d: 'V', s: v }, { d: 'P', s: p }, { d: 'K', s: k }]
+      .sort((a, b) => (b.s - a.s) || (priority[a.d] - priority[b.d]));
+    const a = ranked[0], b = ranked[1], c = ranked[2];
+    if (a.s - b.s >= 20) return a.d;              // single
+    if (a.s - c.s <= 10) {                         // even
+      const avg = (a.s + b.s + c.s) / 3;
+      return avg >= 60 ? 'VPK' : 'BAL';
+    }
+    return a.d + b.d;                              // dual, ordered
+  }
 
-  // Single dominant (>20% gap from second)
-  if (diff > 0.20) {
+  rows(dosha, section) {
+    const color = this.DOSHA_COLORS[dosha];
+    const answers = this.state.answers;
+    return this.QUESTIONS[dosha][section].map((text, i) => {
+      const key = dosha + '_' + section + '_' + i;
+      const cur = answers[key];
+      return {
+        num: String(i + 1).padStart(2, '0'),
+        text: text,
+        buttons: [0, 1, 2, 3, 4, 5].map(v => ({
+          pressed: cur === v,
+          on: () => this.setState(s => ({ answers: { ...s.answers, [key]: v } })),
+          style: this.BTN_BASE + (cur === v
+            ? 'background:' + color + ';border-color:' + color + ';color:#FFFFFF'
+            : 'background:#FBF8F2;color:#7B766B')
+        }))
+      };
+    });
+  }
+
+  barStyle(color, widthPct, heightPx, radius, transition) {
+    return 'height:' + heightPx + 'px;border-radius:' + radius + 'px;background:' + color + ';transition:' + transition + ';width:' + widthPct + '%';
+  }
+
+  reveal = () => {
+    const v = this.total('vata'), p = this.total('pitta'), k = this.total('kapha');
+    const answered = Object.keys(this.state.answers).length;
+
+    if (v + p + k === 0) {
+      this.setState({ note: 'Please rate at least a few statements before revealing your Doṣa.' });
+      return;
+    }
+    const note = answered < 60
+      ? `You've answered ${answered} of 60. For an accurate reading, try to rate them all — your result will update as you do.`
+      : '';
+
+    const code = this.determineConstitution(v, p, k);
+    this.setState({ results: { v: v, p: p, k: k, code: code }, barsIn: false, note: note }, () => {
+      setTimeout(() => this.setState({ barsIn: true }), 80);
+      setTimeout(() => {
+        const el = this.panelRef.current;
+        if (el) {
+          const y = el.getBoundingClientRect().top + window.pageYOffset - 88;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      }, 140);
+    });
+  };
+
+  reset = () => {
+    this.setState({ answers: {}, results: null, barsIn: false, note: '' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  renderVals() {
+    const answered = Object.keys(this.state.answers).length;
+    const pct = Math.min(100, (answered / 60) * 100);
+    const vT = this.total('vata'), pT = this.total('pitta'), kT = this.total('kapha');
+    const r = this.state.results;
+    const t = r ? this.TYPES[r.code] : null;
+    const barsIn = this.state.barsIn;
+    const show = (c) => (r && r.code === c) ? 'block' : 'none';
+
     return {
-      name: first.name,
-      note: `Your constitution shows a clear ${first.name} dominance. Single doṣa dominance is relatively uncommon.`
+      vataPhysical: this.rows('vata', 'physical'),
+      vataPsych: this.rows('vata', 'psych'),
+      pittaPhysical: this.rows('pitta', 'physical'),
+      pittaPsych: this.rows('pitta', 'psych'),
+      kaphaPhysical: this.rows('kapha', 'physical'),
+      kaphaPsych: this.rows('kapha', 'psych'),
+
+      progressFillStyle: 'height:100%;border-radius:2px;background:linear-gradient(90deg,#5F5473,#C0674B,#33523E);transition:width 0.3s ease;width:' + pct + '%',
+      progressCount: answered + ' / 60',
+
+      vataTotal: vT, pittaTotal: pT, kaphaTotal: kT,
+      vataBarStyle: this.barStyle('#5F5473', Math.max(0, Math.min(100, vT)), 5, 3, 'width 0.35s ease'),
+      pittaBarStyle: this.barStyle('#C0674B', Math.max(0, Math.min(100, pT)), 5, 3, 'width 0.35s ease'),
+      kaphaBarStyle: this.barStyle('#33523E', Math.max(0, Math.min(100, kT)), 5, 3, 'width 0.35s ease'),
+
+      reveal: this.reveal,
+      reset: this.reset,
+      noteText: this.state.note,
+      noteDisplay: this.state.note ? 'block' : 'none',
+
+      resultsVisible: !!r,
+      panelRef: this.panelRef,
+      resV: r ? r.v : 0,
+      resP: r ? r.p : 0,
+      resK: r ? r.k : 0,
+      resVataBarStyle: this.barStyle('#5F5473', (r && barsIn) ? Math.min(100, r.v) : 0, 9, 5, 'width 0.8s cubic-bezier(0.22,1,0.36,1)'),
+      resPittaBarStyle: this.barStyle('#C0674B', (r && barsIn) ? Math.min(100, r.p) : 0, 9, 5, 'width 0.8s cubic-bezier(0.22,1,0.36,1)'),
+      resKaphaBarStyle: this.barStyle('#33523E', (r && barsIn) ? Math.min(100, r.k) : 0, 9, 5, 'width 0.8s cubic-bezier(0.22,1,0.36,1)'),
+
+      constitutionName: t ? t.name : '—',
+      constitutionColor: t ? t.colour : '#33523E',
+      constitutionShort: t ? t.short : '',
+
+      descV: show('V'), descP: show('P'), descK: show('K'),
+      descVP: show('VP'), descPV: show('PV'), descPK: show('PK'),
+      descKP: show('KP'), descVK: show('VK'), descKV: show('KV'),
+      descVPK: show('VPK'), descBAL: show('BAL'),
+      dualNoteDisplay: (t && t.kind === 'dual') ? 'block' : 'none'
     };
   }
-
-  // Dual dosha
-  const primary = first.name;
-  const secondary = second.name;
-  return {
-    name: `${primary}–${secondary}`,
-    note: `You have a dual-doṣa constitution with ${primary} as the primary influence and ${secondary} as a prominent secondary quality. This is the most common constitutional type.`
-  };
 }
-
-function resetQuiz() {
-  scores = { vata: {}, pitta: {}, kapha: {} };
-  answeredCount = 0;
-  updateProgress();
-  updateScores();
-  document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
-  document.getElementById('resultsPanel').classList.remove('visible');
-  ['res-vata-bar','res-pitta-bar','res-kapha-bar'].forEach(id => {
-    document.getElementById(id).style.width = '0%';
-  });
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-buildQuestions();
 </script>
 </body>
 </html>
